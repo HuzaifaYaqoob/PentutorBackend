@@ -40,6 +40,9 @@ INSTALLED_APPS = [
 
     # Extra Packages 
     'corsheaders',
+    'rest_framework',
+    'rest_framework.authtoken',
+
 
     # Custom Apps 
     'api.apps.ApiConfig',
