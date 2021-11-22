@@ -7,5 +7,5 @@ from . import views
 
 urlpatterns = [
     path('login/', views.LoginAPI , name='LoginAPI'),
-    path('register/' , views.RegisterAPI , name='RegisterAPI')
+    path('user/' , views.RegisterAPI.as_view() , name='RegisterAPI')
 ]
