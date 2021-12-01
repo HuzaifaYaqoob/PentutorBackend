@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from django.http import JsonResponse, response
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 
 from .serializers import UserSerializer
 
@@ -15,6 +16,7 @@ from .serializers import UserSerializer
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def LoginAPI(request):
     data = request.data
     user = authenticate(
@@ -40,16 +42,24 @@ def LoginAPI(request):
     )
 
 
-class RegisterAPI(APIView):
-    def get(self, request):
-        return JsonResponse({
-            'Register': 'Register'
-        })
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def RegisterAPI(request):
 
-    def post(self, request):
-        data = request.data
+    data = request.data
+    print(data)
+    try:
+        user = User.objects.get(username=data['email'].split('@')[0])
+        return Response(
+            {
+                'status': 'fail',
+                'message':  'E-Mail already in-use.'
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    except User.DoesNotExist:
         try:
-            user = User.objects.create_user(
+            create_user = User.objects.create_user(
                 username=data['email'].split('@')[0],
                 email=data['email'],
                 first_name=data['first_name'],
@@ -60,7 +70,7 @@ class RegisterAPI(APIView):
             return JsonResponse(
                 {
                     'status': 'fail',
-                    'message' : 'Something went wrong'
+                    'message': 'Something went wrong'
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -68,12 +78,23 @@ class RegisterAPI(APIView):
         return JsonResponse(
             {
                 'status': 'success',
-                'message' : 'User Created Successfully'
+                'message': 'User Created Successfully'
             },
             status=status.HTTP_201_CREATED
         )
 
-    def put(self, request):
-        return JsonResponse({
-            'Register': 'Register'
-        })
+
+class UserAPI(APIView):
+
+    def get(self, request):
+        print(request.user)
+        user = UserSerializer(request.user)
+        return JsonResponse(
+            {
+                'success': 'True',
+                'response': {
+                    'user': user.data,
+                }
+            },
+            status=status.HTTP_200_OK
+        )
