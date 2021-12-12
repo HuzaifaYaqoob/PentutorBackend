@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'Authentication.apps.AuthenticationConfig',
     'Profile.apps.ProfileConfig',
+    'Utility.apps.UtilityConfig',
 ]
 
 CORS_ALLOWED_ORIGINS = [
