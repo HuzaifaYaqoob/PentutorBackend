@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 
 from .serializers import UserSerializer
+from Profile.Serializers import StudentProfileSerializers, TeacherProfileSerializer
 
 # Create your views here.
 
@@ -18,19 +19,25 @@ from .serializers import UserSerializer
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def LoginAPI(request):
+    USER_TYPES = {
+        'Tutor': TeacherProfileSerializer,
+        'Student': StudentProfileSerializers
+    }
+
     data = request.data
     user = authenticate(
         username=data['username'],
         password=data['password']
     )
     if user is not None:
-        user_data = UserSerializer(user)
+        user_data = USER_TYPES[user.user_profile.user_type](user.user_profile)
+
         return Response(
             {
                 'status': 'Succes',
                 'user': user_data.data,
             },
-            status=status.HTTP_201_CREATED
+            status=status.HTTP_200_OK
         )
 
     return Response(
@@ -47,7 +54,6 @@ def LoginAPI(request):
 def RegisterAPI(request):
 
     data = request.data
-    print(data)
     try:
         user = User.objects.get(username=data['email'].split('@')[0])
         return Response(
@@ -59,13 +65,13 @@ def RegisterAPI(request):
         )
     except User.DoesNotExist:
         try:
-            create_user = User.objects.create_user(
+            create_user = User(
                 username=data['email'].split('@')[0],
                 email=data['email'],
                 first_name=data['first_name'],
                 last_name=data['last_name'],
-                password=data['password'],
             )
+            create_user.set_password(data['password'])
         except:
             return JsonResponse(
                 {
@@ -74,6 +80,9 @@ def RegisterAPI(request):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        create_user._type = data['type']
+        create_user.save()
 
         return JsonResponse(
             {
@@ -87,8 +96,11 @@ def RegisterAPI(request):
 class UserAPI(APIView):
 
     def get(self, request):
-        print(request.user)
-        user = UserSerializer(request.user)
+        USER_TYPES = {
+            'Tutor': TeacherProfileSerializer,
+            'Student': StudentProfileSerializers
+        }
+        user = USER_TYPES[request.user.user_profile.user_type](request.user.user_profile)
         return JsonResponse(
             {
                 'success': 'True',

@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+from .models import StudentProfile
+
 from .Serializers import StudentProfileSerializers, TeacherProfileSerializer
 # Create your views here.
 
@@ -11,13 +13,19 @@ from .Serializers import StudentProfileSerializers, TeacherProfileSerializer
 
 class ProfileView(APIView):
 
+    def get_StudentProfile(self, request):
+        return StudentProfileSerializers(StudentProfile.objects.get(user = request.user))
+
+    def get_TeacherProfile(self, request):
+        return TeacherProfileSerializer(StudentProfile.objects.get(user = request.user))
+
     def get(self, request):
         user_type_serializer = {
-            'Student' : StudentProfileSerializers,
-            'Tutor' : TeacherProfileSerializer
+            'Student' : self.get_StudentProfile ,
+            'Tutor' : self.get_TeacherProfile
         }
 
-        serialized_obj = user_type_serializer[request.user.user_profile.user_type](request.user.user_profile)
+        serialized_obj = user_type_serializer[request.user.user_profile.user_type](request)
         return Response(
             {
                 'message' : 'Request Successful',
