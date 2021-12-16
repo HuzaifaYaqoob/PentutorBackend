@@ -8,7 +8,7 @@ from Authentication.serializers import UserSerializer
 from Utility.serializers import CountrySerializer, CitySerializer
 
 class StudentProfileSerializers(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    user = UserSerializer()
     Country = CountrySerializer()
     city = CitySerializer()
 
@@ -19,7 +19,7 @@ class StudentProfileSerializers(serializers.ModelSerializer):
 
 
 class TeacherProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    user = UserSerializer()
     Country = CountrySerializer()
     city = CitySerializer()
 

@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import StudentProfile
+from .models import StudentProfile, TeacherProfile
 
 from .Serializers import StudentProfileSerializers, TeacherProfileSerializer
 # Create your views here.
@@ -34,13 +34,19 @@ class ProfileView(APIView):
             status = status.HTTP_200_OK
         )
 
+    def saveStudentProfile(self, request) :
+        return StudentProfileSerializers(StudentProfile.objects.get(user = request.user) , data=request.data , partial=True)
+
+    def saveTutorProfile(self, request) :
+        return StudentProfileSerializers(TeacherProfile.objects.get(user = request.user) , data=request.data , partial=True)
+
     def post(self, request):
         user_type_serializer = {
-            'Student' : StudentProfileSerializers,
-            'Tutor' : TeacherProfileSerializer
+            'Student' : self.saveStudentProfile,
+            'Tutor' : self.saveTutorProfile()
         }
 
-        serialized_obj = user_type_serializer[request.user.user_profile.user_type](data=request.data)
+        serialized_obj = user_type_serializer[request.user.user_profile.user_type](request)
 
         if(serialized_obj.is_valid()):
             serialized_obj.save()
@@ -61,11 +67,11 @@ class ProfileView(APIView):
 
     def put(self, request):
         user_type_serializer = {
-            'Student' : StudentProfileSerializers,
-            'Tutor' : TeacherProfileSerializer
+            'Student' : self.saveStudentProfile,
+            'Tutor' : self.saveTutorProfile
         }
 
-        serialized_obj = user_type_serializer[request.user.user_profile.user_type](request.user.user_profile , data=request.data)
+        serialized_obj = user_type_serializer[request.user.user_profile.user_type](request)
 
         if(serialized_obj.is_valid()):
             serialized_obj.save()
@@ -74,7 +80,7 @@ class ProfileView(APIView):
                     'message' : 'Profile Successfuly Updated',
                     'data' :  serialized_obj.data
                 },
-                status = status.HTTP_201_CREATED
+                status = status.HTTP_200_OK
             )
         else:
             print(serialized_obj.errors)
