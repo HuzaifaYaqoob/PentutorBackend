@@ -29,6 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost' , 'pentutors.com' , 'www.pentutors.com']
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
