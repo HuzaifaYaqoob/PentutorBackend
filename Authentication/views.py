@@ -25,8 +25,9 @@ def LoginAPI(request):
     }
 
     data = request.data
+    print(data)
     user = authenticate(
-        username=data['username'],
+        username=data['username'].split('@')[0],
         password=data['password']
     )
     if user is not None:

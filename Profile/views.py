@@ -20,7 +20,7 @@ class ProfileView(APIView):
         return StudentProfileSerializers(StudentProfile.objects.get(user=request.user))
 
     def get_TeacherProfile(self, request):
-        return TeacherProfileSerializer(StudentProfile.objects.get(user=request.user))
+        return TeacherProfileSerializer(TeacherProfile.objects.get(user=request.user))
 
     def get(self, request):
         user_type_serializer = {
@@ -35,7 +35,7 @@ class ProfileView(APIView):
                 'message': 'Request Successful',
                 'data': serialized_obj.data
             },
-            status=status.HTTP_200_OK
+            status=status.HTTP_200_OK     
         )
 
     def saveStudentProfile(self, request):
@@ -85,7 +85,12 @@ class ProfileView(APIView):
             user_serialized.save()
             serialized_obj.save()
 
-            user_p  = StudentProfile.objects.get(user = request.user)
+            user_type_profile = {
+                'Student': StudentProfile,
+                'Tutor': TeacherProfile
+            }
+
+            user_p  = user_type_profile[request.user.user_profile.user_type].objects.get(user = request.user)
             user_p.Country = Country.objects.get(id = request.data['Country'])
             user_p.city = City.objects.get(id = request.data['city'])
             user_p.save()

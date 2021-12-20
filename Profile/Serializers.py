@@ -17,10 +17,6 @@ class StudentProfileSerializers(serializers.ModelSerializer):
         model = StudentProfile
         fields = '__all__'
 
-    def update(self, instance, validated_data):
-        print(validated_data)
-
-        return instance
 
 
 class TeacherProfileSerializer(serializers.ModelSerializer):
