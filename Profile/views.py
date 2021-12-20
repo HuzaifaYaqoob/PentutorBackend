@@ -115,6 +115,7 @@ class ProfileView(APIView):
             )
 
 
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_all_tutors(request):
