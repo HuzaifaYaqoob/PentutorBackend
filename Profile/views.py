@@ -1,8 +1,10 @@
 import json
 from django.shortcuts import render
 
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from rest_framework import status
 
 from Authentication.serializers import UserSerializer
@@ -35,7 +37,7 @@ class ProfileView(APIView):
                 'message': 'Request Successful',
                 'data': serialized_obj.data
             },
-            status=status.HTTP_200_OK     
+            status=status.HTTP_200_OK
         )
 
     def saveStudentProfile(self, request):
@@ -90,9 +92,10 @@ class ProfileView(APIView):
                 'Tutor': TeacherProfile
             }
 
-            user_p  = user_type_profile[request.user.user_profile.user_type].objects.get(user = request.user)
-            user_p.Country = Country.objects.get(id = request.data['Country'])
-            user_p.city = City.objects.get(id = request.data['city'])
+            user_p = user_type_profile[request.user.user_profile.user_type].objects.get(
+                user=request.user)
+            user_p.Country = Country.objects.get(id=request.data['Country'])
+            user_p.city = City.objects.get(id=request.data['city'])
             user_p.save()
 
             return Response(
@@ -110,3 +113,19 @@ class ProfileView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_all_tutors(request):
+    all_tutors = TeacherProfile.objects.all()
+    serialized = TeacherProfileSerializer(all_tutors, many=True)
+
+    return Response(
+        {
+            'status': 'OK',
+            'message': 'Request Successful',
+            'data': serialized.data
+        },
+        status=status.HTTP_200_OK
+    )
