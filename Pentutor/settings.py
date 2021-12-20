@@ -55,6 +55,7 @@ INSTALLED_APPS = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
+    'http://pentutor.org'
 ]
 
 MIDDLEWARE = [
