@@ -26,7 +26,12 @@ SECRET_KEY = 'django-insecure-+it$^ul&g=$ur_j&kepnw3d+yo#)u&p9#x_s$7_8getofggx_x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost' , 'pentutors.com' , 'www.pentutors.com']
+ALLOWED_HOSTS = [
+    'localhost' , 
+    'pentutors.com' , 
+    'www.pentutors.com' , 
+    '127.0.0.1',
+    ]
 
 
 
@@ -51,11 +56,15 @@ INSTALLED_APPS = [
     'Authentication.apps.AuthenticationConfig',
     'Profile.apps.ProfileConfig',
     'Utility.apps.UtilityConfig',
+    'Content.apps.ContentConfig',
 ]
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
-    'http://pentutor.org'
+    'http://pentutor.org',
+    'https://pentutor.org',
+    'http://pentutor.com',
+    'https://pentutor.com',
 ]
 
 MIDDLEWARE = [
