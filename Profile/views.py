@@ -80,23 +80,36 @@ class ProfileView(APIView):
 
         serialized_obj = user_type_serializer[request.user.user_profile.user_type](
             request)
-        user_serialized = UserSerializer(
-            request.user, data=json.loads(request.data['user']), partial=True)
 
-        if serialized_obj.is_valid() & user_serialized.is_valid():
-            user_serialized.save()
+        get_user = False
+        try:
+            get_user = request.data['user']
+            
+        except:
+            pass
+
+        if serialized_obj.is_valid() :
             serialized_obj.save()
 
+            if get_user :
+                user_serialized = UserSerializer(
+                request.user, data=json.loads( request.data['user']), partial=True)
+                if user_serialized.is_valid():
+                    user_serialized.save()
+                
             user_type_profile = {
                 'Student': StudentProfile,
                 'Tutor': TeacherProfile
             }
 
-            user_p = user_type_profile[request.user.user_profile.user_type].objects.get(
-                user=request.user)
-            user_p.Country = Country.objects.get(id=request.data['Country'])
-            user_p.city = City.objects.get(id=request.data['city'])
-            user_p.save()
+            try:
+                user_p = user_type_profile[request.user.user_profile.user_type].objects.get(
+                    user=request.user)
+                user_p.Country = Country.objects.get(id=request.data['Country'])
+                user_p.city = City.objects.get(id=request.data['city'])
+                user_p.save()
+            except:
+                pass
 
             return Response(
                 {
@@ -106,7 +119,6 @@ class ProfileView(APIView):
                 status=status.HTTP_200_OK
             )
         else:
-            print(serialized_obj.error_messages)
             return Response(
                 {
                     'message': serialized_obj.error_messages
@@ -115,11 +127,11 @@ class ProfileView(APIView):
             )
 
 
-
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_all_tutors(request):
-    all_tutors = TeacherProfile.objects.all()
+    all_tutors = TeacherProfile.objects.filter(
+        is_approved=True, is_active=True, is_deleted=False)
     serialized = TeacherProfileSerializer(all_tutors, many=True)
 
     return Response(
