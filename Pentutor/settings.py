@@ -110,9 +110,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME':  'pentutordb',
-        'USER' : 'huzaifa',
-        'PASSWORD' : 'PenTutor0004' ,
-        'HOST' : '31.187.74.98' ,
+        'USER' : 'admin',
+        'PASSWORD' : 'django1512' ,
+        'HOST' : 'localhost' ,
         'PORT' : 5432
     },
 }
