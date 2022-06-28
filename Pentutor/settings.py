@@ -101,8 +101,14 @@ TEMPLATES = [
 # WSGI_APPLICATION = 'Pentutor.wsgi.application'
 ASGI_APPLICATION = 'Pentutor.asgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+CHANNEL_LAYERS = {
+    'default' : {
+        'BACKEND' : 'channels_redis.core.RedisChannelLayer',
+        'CONFIG' : {
+            'hosts' : [('127.0.0.1', 6379)]
+        }
+    }
+}
 
 DATABASES = {
     # 'default': {
@@ -176,3 +182,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR , 'media')
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

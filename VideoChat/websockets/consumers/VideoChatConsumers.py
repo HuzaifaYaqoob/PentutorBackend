@@ -8,6 +8,7 @@ class VideoChatConsumers(WebsocketConsumer):
     def connect(self):
         print('gonna accept')
         self.accept()
+        self.send('hellow')
 
     def receive(self, text_data=None, bytes_data=None):
         print('gonna receive')
