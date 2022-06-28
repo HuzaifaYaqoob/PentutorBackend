@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
+    'channels',
 
 
     # Custom Apps 
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
     'Profile.apps.ProfileConfig',
     'Utility.apps.UtilityConfig',
     'Content.apps.ContentConfig',
+    'VideoChat.apps.VideochatConfig',
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -96,8 +98,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Pentutor.wsgi.application'
-
+# WSGI_APPLICATION = 'Pentutor.wsgi.application'
+ASGI_APPLICATION = 'Pentutor.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
