@@ -1,3 +1,25 @@
 from django.db import models
 
-# Create your models here.
+from django.contrib.auth.models import User
+from uuid import uuid4
+
+from django.utils.timezone import now
+
+
+
+class VideoChat(models.Model):
+    id = models.CharField(default=uuid4, primary_key=True, unique=True, editable=False)
+    name = models.CharField(max_length=1000, default='', null=True, blank=True)
+    description = models.TextField(default='')
+
+    host = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True , related_name='video_chats')
+    allowed_users = models.ManyToManyField(User, related_name='allowed_video_chats' )
+    paticipants = models.ManyToManyField(User, related_name='participated_video_chats')
+
+    created_at = models.DateTimeField(auto_now_add=now)
+    is_deleted = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+
+    def __str__(self):
+        return self.id
