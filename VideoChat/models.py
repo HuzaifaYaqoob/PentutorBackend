@@ -23,3 +23,19 @@ class VideoChat(models.Model):
 
     def __str__(self):
         return self.id
+
+
+class VideoChatMedia(models.Model):
+    id = models.CharField(default=uuid4, primary_key=True, unique=True, editable=False)
+    file = models.FileField(upload_to='video_chat_media')
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='user_vchat_medias')
+    video_chat = models.ForeignKey(VideoChat, on_delete=models.CASCADE , related_name='video_chat_medias')
+
+    created_at = models.DateTimeField(auto_now_add=now)
+    is_deleted = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+
+    def __str__(self):
+        return self.id
