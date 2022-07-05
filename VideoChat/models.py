@@ -22,7 +22,7 @@ class VideoChat(models.Model):
 
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
 
 class VideoChatMedia(models.Model):
@@ -38,7 +38,7 @@ class VideoChatMedia(models.Model):
 
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
 
     def get_video_chat_name(self):
