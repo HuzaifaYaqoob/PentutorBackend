@@ -8,9 +8,9 @@ from django.utils.timezone import now
 
 
 class VideoChat(models.Model):
-    id = models.CharField(default=uuid4, primary_key=True, unique=True, editable=False)
+    id = models.CharField(default=uuid4, primary_key=True, unique=True, editable=False, max_length=1000)
     name = models.CharField(max_length=1000, default='', null=True, blank=True)
-    description = models.TextField(default='')
+    description = models.TextField(default='', null=True, blank=True)
 
     host = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True , related_name='video_chats')
     allowed_users = models.ManyToManyField(User, related_name='allowed_video_chats' )
@@ -26,7 +26,7 @@ class VideoChat(models.Model):
 
 
 class VideoChatMedia(models.Model):
-    id = models.CharField(default=uuid4, primary_key=True, unique=True, editable=False)
+    id = models.CharField(default=uuid4, primary_key=True, unique=True, editable=False, max_length=1000)
     file = models.FileField(upload_to='video_chat_media')
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='user_vchat_medias')
@@ -39,3 +39,7 @@ class VideoChatMedia(models.Model):
 
     def __str__(self):
         return self.id
+
+
+    def get_video_chat_name(self):
+        return self.video_chat.name if self.video_chat.name else 'No Name N/A'

@@ -1,3 +1,53 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
+from .models import VideoChat, VideoChatMedia
+from .serializers import VideoChat_GetSerializer
+
+
+@api_view(['POST'])
+def create_video_chat(request):
+    pass
+
+@api_view(['GET'])
+def get_video_chat(request):
+    vChat_id = request.GET.get('video_chat_id', None)
+
+    if vChat_id is None:
+        return Response(
+            {
+                'status' : False,
+                'response' : {
+                    'message' : 'Invalid Data'
+                }
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        video_chat = VideoChat.objects.get(id=vChat_id, is_deleted=False, is_active=True)
+    except Exception as err:
+        return Response(
+            {
+                'status' : False,
+                'response' : {
+                    'message' : str(err)
+                }
+            },
+            status=status.HTTP_404_NOT_FOUND
+        )
+    else:
+        serialized_obj = VideoChat_GetSerializer(video_chat)
+        return Response(
+            {
+                'status' : True,
+                'response' : {
+                    'data' : serialized_obj.data
+                }
+            },
+            status=status.HTTP_200_OK
+        )
