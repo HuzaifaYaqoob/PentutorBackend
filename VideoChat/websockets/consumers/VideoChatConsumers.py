@@ -6,20 +6,19 @@ from asgiref.sync import async_to_sync
 
 class VideoChatConsumers(WebsocketConsumer):
 
-    def __init__(self):
-        self.channel_base = 'video_chat_user_socket_' ## adding chat ID and userID
-        # self.channel_base = 'video_chat_user_socket_<videochat_id>_<user_id>' 
-
         
     
     def connect(self):
-        # self.channel_base += 'chatid'
-        # self.channel_base += 'userid'
-        self.accept()
-        # async_to_sync(self.channel_layer.group_add)(
-        #     self.channel_base,
-        #     self.channel_name
-        # )
+        self.user = self.scope['user']
+        if self.user.is_authenticated:
+            self.video_chat_id = self.scope['url_route']['kwargs']['videochat_id']
+            self.channel_base = f'video-chat-user-socket-{self.video_chat_id}-{self.user.username}'
+            self.accept()
+            print(self.channel_base)
+            async_to_sync(self.channel_layer.group_add)(
+                self.channel_base,
+                self.channel_name
+            )
 
     def receive(self, text_data=None, bytes_data=None):
         text_data = json.loads(text_data)
@@ -36,7 +35,6 @@ class VideoChatConsumers(WebsocketConsumer):
 
     def disconnect(self, code):
         print('disconnected')
-
 
 
 

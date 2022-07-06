@@ -18,12 +18,15 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Pentutor.settings')
 
 from channels.routing import ProtocolTypeRouter, URLRouter
 import VideoChat.websockets.urls
+from .websocket.SocketMiddlewares import AuthSocketMiddleware
 
 
 application = ProtocolTypeRouter({
     'http' : get_asgi_application(),
-    'websocket' : URLRouter(
-        VideoChat.websockets.urls.websocket_urls,
-    )
+    'websocket' : AuthSocketMiddleware(
+            URLRouter(
+                VideoChat.websockets.urls.websocket_urls,
+            )
+        )
 
 })
