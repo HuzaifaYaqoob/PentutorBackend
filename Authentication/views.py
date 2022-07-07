@@ -32,11 +32,13 @@ def LoginAPI(request):
     )
     if user is not None:
         user_data = USER_TYPES[user.user_profile.user_type](user.user_profile)
+        data = user_data.data
+        data['access_token'] = str(user.auth_token)
 
         return Response(
             {
                 'status': 'Succes',
-                'user': user_data.data,
+                'user': data,
             },
             status=status.HTTP_200_OK
         )
