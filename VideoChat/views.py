@@ -13,7 +13,37 @@ from .serializers import VideoChat_GetSerializer
 
 @api_view(['POST'])
 def create_video_chat(request):
-    pass
+    name = request.GET.get('name' , None)
+
+    if not request.user.is_authenticated:
+        return Response(
+            {
+                'status' : False,
+                'response' : {
+                    'message' : 'Authentication Failed',
+                    'error_message' : 'Invalid Token or Login Failed'
+                }
+            }, status=status.HTTP_401_UNAUTHORIZED
+        )
+    vid_chat = VideoChat.objects.create(
+        name=name,
+        host=request.user,
+    )
+    vid_chat.allowed_users.add(request.user)
+    vid_chat.save()
+
+    serialized = VideoChat_GetSerializer(vid_chat)
+
+    return Response(
+        {
+            'status' : True,
+            'response' : {
+                'message' : 'Video Chat created successfully.',
+                'data' : serialized.data,
+                'error_message' : None
+            }
+        }, status=status.HTTP_201_CREATED
+    )
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
