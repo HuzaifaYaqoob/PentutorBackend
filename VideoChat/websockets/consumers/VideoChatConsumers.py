@@ -55,17 +55,16 @@ class VideoChatConsumers(WebsocketConsumer):
         }
 
         if r_type in types_:
-            types_[r_type]()
+            types_[r_type](text_data)
         print('gonna receive')
 
     def disconnect(self, code):
-        print('disconnected')
+        print('disconnected', code)
 
     def chat_message(self, event):
         self.send(json.dumps(event['message']))
 
-    
-    def new_connection_request(self):
+    def new_connection_request(self, message):
         async_to_sync(self.channel_layer.group_send)(
             f'active-video-chat-{self.video_chat_id}',
             {
@@ -84,7 +83,8 @@ class VideoChatConsumers(WebsocketConsumer):
                             'id' : self.vidChat.host.id,
                         }
                     },
-                    'message' : f'{self.user.username} want to join this meeting.'
+                    'message' : f'{self.user.username} want to join this meeting.',
+                    'offer' : message['offer']
                 }
             }
         )
@@ -127,13 +127,13 @@ class ActivatedVideoChat(WebsocketConsumer):
         data = json.loads(text_data)
         r_type = data['type']
 
-        if r_type == 'NEW_CONNECTION_ACCEPTED':
-            self.new_connection_accepted(data['message'])
+        if r_type == 'CONNECTION_ACCEPTED':
+            self.new_connection_accepted(data)
         elif r_type == 'CONNECTION_REJECTED':
-            self.connection_rejected(data['message'])
+            self.connection_rejected(data)
 
     def disconnect(self, code):
-        print('disconnected')
+        print('disconnected', code)
 
 
     def chat_message(self, event):
@@ -142,12 +142,13 @@ class ActivatedVideoChat(WebsocketConsumer):
         self.send(json.dumps(message))
 
     def new_connection_accepted(self, message):
+        print(message)
         username = message['user']['username']
-        email = message['user']['username']
+        # email = message['user']['username']
         print(message)
         try:
             get_user = User.objects.get(username=username)
-            self.vidChat.paticipants.add(get_user)
+            self.vidChat.allowed_users.add(get_user)
             self.vidChat.save()
         except Exception as err:
             print(err)
@@ -157,16 +158,22 @@ class ActivatedVideoChat(WebsocketConsumer):
             f'video-chat-user-socket-{self.video_chat_id}-{username}',
             {
                 'type' : 'chat.message',
-                'message' : {
-                    'type' : 'CONNECTION_ACCEPTED',
-                    'message' : f'{self.user.username} has accepted to join you this meeting.'
-                }
+                'message' : message
             }
         )
 
 
     def connection_rejected(self, message):
-        pass
+        print(message)
+        username = message['user']['username']
+
+        async_to_sync(self.channel_layer.group_send)(
+            f'video-chat-user-socket-{self.video_chat_id}-{username}',
+            {
+                'type' : 'chat.message',
+                'message' : message
+            }
+        )
 
 
     def new_connection_added(self):
