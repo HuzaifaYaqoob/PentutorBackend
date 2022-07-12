@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
     'pentutors.com' , 
     'www.pentutors.com' , 
     '127.0.0.1',
+    '192.168.115.107'
     ]
 
 
@@ -67,6 +68,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://pentutor.org',
     'http://pentutor.com',
     'https://pentutor.com',
+    'http://192.168.115.107:3000'
 ]
 
 MIDDLEWARE = [
