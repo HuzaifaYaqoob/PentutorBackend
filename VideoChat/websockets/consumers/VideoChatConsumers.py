@@ -27,9 +27,14 @@ class VideoChatConsumers(WebsocketConsumer):
         if self.user.is_authenticated and get_chat is not None:
             self.vidChat = get_chat
             self.channel_base = f'video-chat-user-socket-{self.video_chat_id}-{self.user.username}'
+            self.channel_base2 = f'video-chat-user-socket-{self.video_chat_id}'
             self.accept()
             async_to_sync(self.channel_layer.group_add)(
                 self.channel_base,
+                self.channel_name
+            )
+            async_to_sync(self.channel_layer.group_add)(
+                self.channel_base2,
                 self.channel_name
             )
 
@@ -51,7 +56,7 @@ class VideoChatConsumers(WebsocketConsumer):
 
         types_ = {
             'NEW_CONNECTION_REQUEST' : self.new_connection_request,
-            # 'CONNECTION_ACCEPTED' : self.connection_accepted
+            'ICE_CANDIDATE' : self.onIceCandidate
         }
 
         if r_type in types_:
@@ -63,6 +68,15 @@ class VideoChatConsumers(WebsocketConsumer):
 
     def chat_message(self, event):
         self.send(json.dumps(event['message']))
+
+    def send_message(self, message):
+        async_to_sync(self.channel_layer.group_send)(
+            self.channel_base,
+            {
+                'type' : 'chat_message',
+                'message' : message
+            }
+        )
 
     def new_connection_request(self, message):
         async_to_sync(self.channel_layer.group_send)(
@@ -86,6 +100,22 @@ class VideoChatConsumers(WebsocketConsumer):
                     'message' : f'{self.user.username} want to join this meeting.',
                     'offer' : message['offer']
                 }
+            }
+        )
+
+    def onIceCandidate(self, message):
+        async_to_sync(self.channel_layer.group_send)(
+            f'active-video-chat-{self.video_chat_id}',
+            {
+                'type' : 'chat_message',
+                'message' : message
+            }
+        )
+        async_to_sync(self.channel_layer.group_send)(
+            self.channel_base2,
+            {
+                'type' : 'chat_message',
+                'message' : message
             }
         )
     
