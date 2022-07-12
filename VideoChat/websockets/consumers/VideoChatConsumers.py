@@ -61,7 +61,6 @@ class VideoChatConsumers(WebsocketConsumer):
 
         if r_type in types_:
             types_[r_type](text_data)
-        print('gonna receive')
 
     def disconnect(self, code):
         print('disconnected', code)
@@ -172,10 +171,8 @@ class ActivatedVideoChat(WebsocketConsumer):
         self.send(json.dumps(message))
 
     def new_connection_accepted(self, message):
-        print(message)
         username = message['user']['username']
         # email = message['user']['username']
-        print(message)
         try:
             get_user = User.objects.get(username=username)
             self.vidChat.allowed_users.add(get_user)
@@ -194,7 +191,6 @@ class ActivatedVideoChat(WebsocketConsumer):
 
 
     def connection_rejected(self, message):
-        print(message)
         username = message['user']['username']
 
         async_to_sync(self.channel_layer.group_send)(
