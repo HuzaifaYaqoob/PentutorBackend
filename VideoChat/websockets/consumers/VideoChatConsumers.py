@@ -161,6 +161,23 @@ class ActivatedVideoChat(WebsocketConsumer):
         elif r_type == 'CONNECTION_REJECTED':
             self.connection_rejected(data)
 
+        elif r_type == 'CUSTOM_OFFER':
+            async_to_sync(self.channel_layer.group_send)(
+                self.activated_vc_channel_base,
+                {
+                    'type' : 'chat.message',
+                    'message' : data
+                }
+            )
+        elif r_type == 'CUSTOM_ANSWER':
+            async_to_sync(self.channel_layer.group_send)(
+                self.activated_vc_channel_base,
+                {
+                    'type' : 'chat.message',
+                    'message' : data
+                }
+            )
+
     def disconnect(self, code):
         print('disconnected', code)
 
