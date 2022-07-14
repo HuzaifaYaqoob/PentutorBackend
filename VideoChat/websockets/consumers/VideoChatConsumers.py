@@ -132,6 +132,7 @@ class VideoChatConsumers(WebsocketConsumer):
             print(err)
             # pass
 
+        message['active_users'] = self.vidChat.participants.all()
         async_to_sync(self.channel_layer.group_send)(
             f'video-chat-user-socket-{self.video_chat_id}-{username}',
             {
@@ -204,6 +205,8 @@ class ActivatedVideoChat(WebsocketConsumer):
             self.connection_rejected(data)
         elif r_type == 'ICE_CANDIDATE':
             self.IceCandidate(data)
+        elif r_type == 'NEW_USER_JOINED_VIDEO_CHAT':
+            self.NewUserJoinedVideoChat(data)
         elif r_type == 'CUSTOM_OFFER':
             async_to_sync(self.channel_layer.group_send)(
                 self.activated_vc_channel_base,
@@ -231,15 +234,13 @@ class ActivatedVideoChat(WebsocketConsumer):
         self.send(json.dumps(message))
 
     def new_connection_accepted(self, message):
-        username = message['user']['username']
-        # email = message['user']['username']
+        username = message['requested']['username']
         try:
             get_user = User.objects.get(username=username)
             self.vidChat.allowed_users.add(get_user)
             self.vidChat.save()
         except Exception as err:
             print(err)
-            # pass
 
         async_to_sync(self.channel_layer.group_send)(
             f'video-chat-user-socket-{self.video_chat_id}-{username}',
@@ -263,10 +264,14 @@ class ActivatedVideoChat(WebsocketConsumer):
 
 
     def IceCandidate(self, message):
+        username = message['send_to']['username']
         async_to_sync(self.channel_layer.group_send)(
-            self.activated_vc_channel_base,
+            f'video-chat-user-socket-{self.video_chat_id}-{username}',
             {
                 'type' : 'chat.message',
                 'message' : message
             }
         )
+
+    def NewUserJoinedVideoChat(self, message):
+        pass
