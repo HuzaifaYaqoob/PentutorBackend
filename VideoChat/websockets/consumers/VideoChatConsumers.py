@@ -1,5 +1,6 @@
 
 
+from email import message
 from channels.generic.websocket import WebsocketConsumer
 import json
 from asgiref.sync import async_to_sync
@@ -56,7 +57,9 @@ class VideoChatConsumers(WebsocketConsumer):
 
         types_ = {
             'NEW_CONNECTION_REQUEST' : self.new_connection_request,
-            'ICE_CANDIDATE' : self.onIceCandidate
+            'ICE_CANDIDATE' : self.onIceCandidate,
+            'CONNECTION_ACCEPTED' : self.request_approved,
+            'CONNECTION_REJECTED' : self.request_declined,
         }
 
         if r_type in types_:
@@ -117,6 +120,36 @@ class VideoChatConsumers(WebsocketConsumer):
                 'message' : message
             }
         )
+
+    def request_approved(self, message):
+        username = message['requested']['username']
+        # email = message['user']['username']
+        try:
+            get_user = User.objects.get(username=username)
+            self.vidChat.allowed_users.add(get_user)
+            self.vidChat.save()
+        except Exception as err:
+            print(err)
+            # pass
+
+        async_to_sync(self.channel_layer.group_send)(
+            f'video-chat-user-socket-{self.video_chat_id}-{username}',
+            {
+                'type' : 'chat.message',
+                'message' : message,
+            }
+        )
+    
+    def request_declined(self, message):
+        username = message['user']['username']
+
+        async_to_sync(self.channel_layer.group_send)(
+            f'video-chat-user-socket-{self.video_chat_id}-{username}',
+            {
+                'type' : 'chat.message',
+                'message' : message
+            }
+        )
     
 
 
@@ -142,7 +175,8 @@ class ActivatedVideoChat(WebsocketConsumer):
             get_chat = VideoChat.objects.get(id=self.video_chat_id)
         except:
             get_chat = None
-        if self.user.is_authenticated and get_chat is not None and self.user in get_chat.allowed_users.all():
+        # if self.user.is_authenticated and get_chat is not None and self.user in get_chat.allowed_users.all():
+        if self.user.is_authenticated and get_chat is not None:
             self.vidChat = get_chat
             self.accept()
             self.activated_vc_channel_base = f'active-video-chat-{self.video_chat_id}'
@@ -156,11 +190,20 @@ class ActivatedVideoChat(WebsocketConsumer):
         data = json.loads(text_data)
         r_type = data['type']
 
-        if r_type == 'CONNECTION_ACCEPTED':
+        if r_type == 'NEW_CONNECTION_REQUEST':
+            async_to_sync(self.channel_layer.group_send)(
+                f'video-chat-user-socket-{self.video_chat_id}-{self.vidChat.host.username}',
+                {
+                    'type' : 'chat.message',
+                    'message' : data
+                }
+            )
+        elif r_type == 'CONNECTION_ACCEPTED':
             self.new_connection_accepted(data)
         elif r_type == 'CONNECTION_REJECTED':
             self.connection_rejected(data)
-
+        elif r_type == 'ICE_CANDIDATE':
+            self.IceCandidate(data)
         elif r_type == 'CUSTOM_OFFER':
             async_to_sync(self.channel_layer.group_send)(
                 self.activated_vc_channel_base,
@@ -219,5 +262,11 @@ class ActivatedVideoChat(WebsocketConsumer):
         )
 
 
-    def new_connection_added(self):
-        print('ADDED NEW CONNECTIOn')
+    def IceCandidate(self, message):
+        async_to_sync(self.channel_layer.group_send)(
+            self.activated_vc_channel_base,
+            {
+                'type' : 'chat.message',
+                'message' : message
+            }
+        )
