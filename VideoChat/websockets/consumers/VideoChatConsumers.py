@@ -238,6 +238,14 @@ class ActivatedVideoChat(WebsocketConsumer):
                     'message' : data
                 }
             )
+        elif r_type == 'CHAT_NEW_MESSAGE':
+            async_to_sync(self.channel_layer.group_send)(
+                self.activated_vc_channel_base,
+                {
+                    'type' : 'chat.message',
+                    'message' : data
+                }
+            )
 
     def disconnect(self, code):
         try:
