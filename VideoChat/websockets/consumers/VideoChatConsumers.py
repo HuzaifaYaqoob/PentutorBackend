@@ -180,6 +180,11 @@ class ActivatedVideoChat(WebsocketConsumer):
         if self.user.is_authenticated and get_chat is not None:
             self.vidChat = get_chat
             self.accept()
+            try:
+                self.vidChat.paticipants.add(self.user)
+                self.vidChat.save()
+            except:
+                pass
             self.activated_vc_channel_base = f'active-video-chat-{self.video_chat_id}'
 
             async_to_sync(self.channel_layer.group_add)(
@@ -207,6 +212,8 @@ class ActivatedVideoChat(WebsocketConsumer):
             self.IceCandidate(data)
         elif r_type == 'NEW_USER_JOINED_VIDEO_CHAT':
             self.NewUserJoinedVideoChat(data)
+        elif r_type == 'NEW_USER_JOINED_VIDEO_CHAT_APPROVED':
+            self.NewUserJoinedVideoChatApproved(data)
         elif r_type == 'CUSTOM_OFFER':
             async_to_sync(self.channel_layer.group_send)(
                 self.activated_vc_channel_base,
@@ -223,8 +230,30 @@ class ActivatedVideoChat(WebsocketConsumer):
                     'message' : data
                 }
             )
+        elif r_type == 'USER_LEFT_MEETING':
+            async_to_sync(self.channel_layer.group_send)(
+                self.activated_vc_channel_base,
+                {
+                    'type' : 'chat.message',
+                    'message' : data
+                }
+            )
 
     def disconnect(self, code):
+        try:
+            self.vidChat.paticipants.remove(self.user)
+            self.vidChat.save()
+        except:
+            pass
+        async_to_sync(self.channel_layer.group_send)(
+            self.activated_vc_channel_base,
+            {
+                'type' : 'chat.message',
+                'message' : {
+                    'user' : self.user
+                }
+            }
+        )
         print('disconnected', code)
 
 
@@ -235,12 +264,12 @@ class ActivatedVideoChat(WebsocketConsumer):
 
     def new_connection_accepted(self, message):
         username = message['requested']['username']
-        try:
-            get_user = User.objects.get(username=username)
-            self.vidChat.allowed_users.add(get_user)
-            self.vidChat.save()
-        except Exception as err:
-            print(err)
+        # try:
+            # get_user = User.objects.get(username=username)
+            # self.vidChat.allowed_users.add(get_user)
+            # self.vidChat.save()
+        # except Exception as err:
+        #     print(err)
 
         async_to_sync(self.channel_layer.group_send)(
             f'video-chat-user-socket-{self.video_chat_id}-{username}',
@@ -264,9 +293,9 @@ class ActivatedVideoChat(WebsocketConsumer):
 
 
     def IceCandidate(self, message):
-        username = message['send_to']['username']
+        # username = message['send_to']['username']
         async_to_sync(self.channel_layer.group_send)(
-            f'video-chat-user-socket-{self.video_chat_id}-{username}',
+            self.activated_vc_channel_base,
             {
                 'type' : 'chat.message',
                 'message' : message
@@ -274,4 +303,24 @@ class ActivatedVideoChat(WebsocketConsumer):
         )
 
     def NewUserJoinedVideoChat(self, message):
-        pass
+        # try:
+        #     self.vidChat.paticipants.add(self.user)
+        #     self.vidChat.save()
+        # except Exception as err:
+        #     print('ERROR ::::: ' , err)
+        async_to_sync(self.channel_layer.group_send)(
+            self.activated_vc_channel_base,
+            {
+                'type' : 'chat.message',
+                'message' : message
+            }   
+        )
+
+    def NewUserJoinedVideoChatApproved(self, message):
+        async_to_sync(self.channel_layer.group_send)(
+            self.activated_vc_channel_base,
+            {
+                'type' : 'chat.message',
+                'message' : message
+            }   
+        )
