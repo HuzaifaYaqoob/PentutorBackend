@@ -13,7 +13,7 @@ def get_user(token):
     except Token.DoesNotExist:
         return AnonymousUser()
 
-class AuthSocketMiddleware:
+class TokenAuthMiddleware:
 
     def __init__(self, app):
         self.app = app
