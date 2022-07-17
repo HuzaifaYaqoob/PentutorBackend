@@ -66,7 +66,7 @@ class VideoChatConsumers(WebsocketConsumer):
             types_[r_type](text_data)
 
     def disconnect(self, code):
-        print('disconnected', code)
+        print('vid chat not active disconnected', code)
 
     def chat_message(self, event):
         self.send(json.dumps(event['message']))
@@ -180,11 +180,12 @@ class ActivatedVideoChat(WebsocketConsumer):
         if self.user.is_authenticated and get_chat is not None:
             self.vidChat = get_chat
             self.accept()
-            try:
-                self.vidChat.paticipants.add(self.user)
-                self.vidChat.save()
-            except:
-                pass
+            if self.user.username == get_chat.host.username:
+                try:
+                    self.vidChat.paticipants.add(self.user)
+                    self.vidChat.save()
+                except:
+                    pass
             self.activated_vc_channel_base = f'active-video-chat-{self.video_chat_id}'
 
             async_to_sync(self.channel_layer.group_add)(
@@ -231,6 +232,13 @@ class ActivatedVideoChat(WebsocketConsumer):
                 }
             )
         elif r_type == 'USER_LEFT_MEETING':
+            try:
+                get_user = User.objects.get(username=self.user.username)
+                self.vidChat.paticipants.remove(get_user)
+                self.vidChat.save()
+            except Exception as err:
+                print('EERRR :: ', err)
+                pass
             async_to_sync(self.channel_layer.group_send)(
                 self.activated_vc_channel_base,
                 {
@@ -249,16 +257,20 @@ class ActivatedVideoChat(WebsocketConsumer):
 
     def disconnect(self, code):
         try:
-            self.vidChat.paticipants.remove(self.user)
+            get_user = User.objects.get(username=self.user.username)
+
+            self.vidChat.paticipants.remove(get_user)
+            print('//////////////////// user removed', get_user)
             self.vidChat.save()
-        except:
+        except Exception as err:
+            print('EERRR :: ', err)
             pass
         async_to_sync(self.channel_layer.group_send)(
             self.activated_vc_channel_base,
             {
                 'type' : 'chat.message',
                 'message' : {
-                    'user' : self.user
+                    'user' : str(self.user)
                 }
             }
         )
@@ -311,11 +323,12 @@ class ActivatedVideoChat(WebsocketConsumer):
         )
 
     def NewUserJoinedVideoChat(self, message):
-        # try:
-        #     self.vidChat.paticipants.add(self.user)
-        #     self.vidChat.save()
-        # except Exception as err:
-        #     print('ERROR ::::: ' , err)
+        try:
+            get_user = User.objects.get(username=self.user.username)
+            self.vidChat.paticipants.add(get_user)
+            self.vidChat.save()
+        except Exception as err:
+            print('ERROR ::::: ' , err)
         async_to_sync(self.channel_layer.group_send)(
             self.activated_vc_channel_base,
             {
