@@ -254,6 +254,30 @@ class ActivatedVideoChat(WebsocketConsumer):
                     'message' : data
                 }
             )
+        elif r_type == 'SCREEN_SHARE_NEW_CONNECTION':
+            async_to_sync(self.channel_layer.group_send)(
+                self.activated_vc_channel_base,
+                {
+                    'type' : 'chat.message',
+                    'message' : data
+                }
+            )
+        elif r_type == 'SCREEN_SHARE_NEW_CONNECTION_ANSWER':
+            async_to_sync(self.channel_layer.group_send)(
+                self.activated_vc_channel_base,
+                {
+                    'type' : 'chat.message',
+                    'message' : data
+                }
+            )
+        elif r_type == 'SCREEN_ICE_CANDIDATE':
+            async_to_sync(self.channel_layer.group_send)(
+                self.activated_vc_channel_base,
+                {
+                    'type' : 'chat.message',
+                    'message' : data
+                }
+            )
 
     def disconnect(self, code):
         try:
@@ -265,12 +289,21 @@ class ActivatedVideoChat(WebsocketConsumer):
         except Exception as err:
             print('EERRR :: ', err)
             pass
+
+        user_obj = {
+            'username' : str(self.user.username),
+            'email' : str(self.user.email),
+            'first_name' : str(self.user.first_name),
+            'last_name' : str(self.user.last_name),
+            'auth_token' : str(self.user.auth_token),
+        }
         async_to_sync(self.channel_layer.group_send)(
             self.activated_vc_channel_base,
             {
                 'type' : 'chat.message',
                 'message' : {
-                    'user' : str(self.user)
+                    'type' : 'USER_LEFT_MEETING',
+                    'user' : user_obj
                 }
             }
         )
