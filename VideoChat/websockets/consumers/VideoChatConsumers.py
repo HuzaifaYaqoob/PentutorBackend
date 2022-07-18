@@ -280,33 +280,38 @@ class ActivatedVideoChat(WebsocketConsumer):
             )
 
     def disconnect(self, code):
+        was_user_active = False
         try:
             get_user = User.objects.get(username=self.user.username)
-
-            self.vidChat.paticipants.remove(get_user)
-            print('//////////////////// user removed', get_user)
-            self.vidChat.save()
+            if get_user in self.vidChat.paticipants.all():
+                was_user_active = True
+                self.vidChat.paticipants.remove(get_user)
+                self.vidChat.save()
+            else :
+                was_user_active = False
+           
         except Exception as err:
             print('EERRR :: ', err)
             pass
 
-        user_obj = {
-            'username' : str(self.user.username),
-            'email' : str(self.user.email),
-            'first_name' : str(self.user.first_name),
-            'last_name' : str(self.user.last_name),
-            'auth_token' : str(self.user.auth_token),
-        }
-        async_to_sync(self.channel_layer.group_send)(
-            self.activated_vc_channel_base,
-            {
-                'type' : 'chat.message',
-                'message' : {
-                    'type' : 'USER_LEFT_MEETING',
-                    'user' : user_obj
-                }
+        if was_user_active:
+            user_obj = {
+                'username' : str(self.user.username),
+                'email' : str(self.user.email),
+                'first_name' : str(self.user.first_name),
+                'last_name' : str(self.user.last_name),
+                'auth_token' : str(self.user.auth_token),
             }
-        )
+            async_to_sync(self.channel_layer.group_send)(
+                self.activated_vc_channel_base,
+                {
+                    'type' : 'chat.message',
+                    'message' : {
+                        'type' : 'USER_LEFT_MEETING',
+                        'user' : user_obj
+                    }
+                }
+            )
         print('disconnected', code)
 
 
