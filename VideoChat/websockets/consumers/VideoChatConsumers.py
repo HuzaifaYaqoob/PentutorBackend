@@ -334,7 +334,7 @@ class ActivatedVideoChat(WebsocketConsumer):
 
 
     def connection_rejected(self, message):
-        username = message['user']['username']
+        username = message['requested']['username']
 
         async_to_sync(self.channel_layer.group_send)(
             f'video-chat-user-socket-{self.video_chat_id}-{username}',
