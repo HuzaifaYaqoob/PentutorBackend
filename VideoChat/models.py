@@ -43,3 +43,25 @@ class VideoChatMedia(models.Model):
 
     def get_video_chat_name(self):
         return self.video_chat.name if self.video_chat.name else 'No Name N/A'
+
+
+class VideoChatSetting(models.Model):
+    id = models.CharField(default=uuid4, primary_key=True, unique=True, editable=False, max_length=1000)
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='user_vchat_settings')
+    video_chat = models.ForeignKey(VideoChat, on_delete=models.CASCADE , related_name='video_chat_settings')
+
+    lock_meeting = models.BooleanField(default=False)
+    waiting_room = models.BooleanField(default=True)
+
+    share_screen = models.BooleanField(default=False)
+    allow_chat = models.BooleanField(default=False)
+    unmute = models.BooleanField(default=False)
+    start_video = models.BooleanField(default=False)
+    allow_rename = models.BooleanField(default=False)
+
+    muted_participant = models.ManyToManyField(User, related_name='muted_participants')
+
+
+    def __str__(self):
+        return str(self.id)

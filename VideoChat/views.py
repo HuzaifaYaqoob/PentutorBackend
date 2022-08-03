@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 
 
-from .models import VideoChat, VideoChatMedia
+from .models import VideoChat, VideoChatSetting
 from .serializers import VideoChat_GetSerializer
 
 
@@ -31,6 +31,13 @@ def create_video_chat(request):
     )
     vid_chat.allowed_users.add(request.user)
     vid_chat.save()
+
+    video_chat_setting = VideoChatSetting(
+        user = request.user,
+        video_chat = vid_chat,
+    )
+
+    video_chat_setting.save()
 
     serialized = VideoChat_GetSerializer(vid_chat)
 
