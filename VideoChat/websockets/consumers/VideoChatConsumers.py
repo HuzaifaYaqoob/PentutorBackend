@@ -5,7 +5,7 @@ from channels.generic.websocket import WebsocketConsumer
 import json
 from asgiref.sync import async_to_sync
 
-from VideoChat.models import VideoChat
+from VideoChat.models import VideoChat, VideoChatSetting
 from django.contrib.auth.models import User
 class VideoChatConsumers(WebsocketConsumer):
 
@@ -271,6 +271,33 @@ class ActivatedVideoChat(WebsocketConsumer):
                 }
             )
         elif r_type == 'SCREEN_ICE_CANDIDATE':
+            async_to_sync(self.channel_layer.group_send)(
+                self.activated_vc_channel_base,
+                {
+                    'type' : 'chat.message',
+                    'message' : data
+                }
+            )
+        elif r_type == 'SETTINGS_CHANGE':
+            chat_id = data['message']['id']
+            chat_settings = VideoChatSetting.objects.get_or_create(video_chat__id=chat_id)
+            chat_settings.allow_chat = data['message']['allow_chat']
+            chat_settings.allow_rename = data['message']['allow_rename']
+            chat_settings.lock_meeting = data['message']['lock_meeting']
+            chat_settings.share_screen = data['message']['share_screen']
+            chat_settings.start_video = data['message']['start_video']
+            chat_settings.unmute = data['message']['unmute']
+            chat_settings.waiting_room = data['message']['waiting_room']
+            chat_settings.save()
+            
+            async_to_sync(self.channel_layer.group_send)(
+                self.activated_vc_channel_base,
+                {
+                    'type' : 'chat.message',
+                    'message' : data
+                }
+            )
+        elif r_type == 'WHITE_BOARD_DATA':
             async_to_sync(self.channel_layer.group_send)(
                 self.activated_vc_channel_base,
                 {
