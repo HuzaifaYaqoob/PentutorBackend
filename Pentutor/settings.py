@@ -60,10 +60,12 @@ INSTALLED_APPS = [
     'Utility.apps.UtilityConfig',
     'Content.apps.ContentConfig',
     'VideoChat.apps.VideochatConfig',
+    'Course.apps.CourseConfig',
 ]
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
+    'http://localhost:3001',
     'http://pentutor.org',
     'https://pentutor.org',
     'http://pentutor.com',

@@ -67,7 +67,8 @@ class ProfileView(APIView):
         else:
             return Response(
                 {
-                    'message': serialized_obj.message
+                    'message': serialized_obj.message,
+                    'error_messages': serialized_obj.errors,
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -121,7 +122,8 @@ class ProfileView(APIView):
         else:
             return Response(
                 {
-                    'message': serialized_obj.error_messages
+                    'message': serialized_obj.error_messages,
+                    'error_messages': serialized_obj.errors,
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -139,6 +141,47 @@ def get_all_tutors(request):
             'status': 'OK',
             'message': 'Request Successful',
             'data': serialized.data
+        },
+        status=status.HTTP_200_OK
+    )
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_tutor(request):
+    tutor_slug = request.GET.get('slug', None)
+    if tutor_slug is None:
+        return Response(
+            {
+                'status': False,
+                'message': 'Invalid Data',
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        tutor = TeacherProfile.objects.get(
+            slug=tutor_slug, is_approved=True, is_active=True, is_deleted=False
+            )
+    except:
+        return Response(
+            {
+                'status': False,
+                'message': 'Tutor Profile not found',
+            },
+            status=status.HTTP_404_NOT_FOUND
+        )
+    serialized = TeacherProfileSerializer(tutor)
+    data = dict(serialized.data)
+    del data['cnic_image']
+    del data['cnic_back']
+    del data['cnic_number']
+
+    return Response(
+        {
+            'status': 'OK',
+            'message': 'Request Successful',
+            'data': data
         },
         status=status.HTTP_200_OK
     )
