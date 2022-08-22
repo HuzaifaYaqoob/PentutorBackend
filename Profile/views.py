@@ -172,16 +172,12 @@ def get_tutor(request):
             status=status.HTTP_404_NOT_FOUND
         )
     serialized = TeacherProfileSerializer(tutor)
-    data = dict(serialized.data)
-    del data['cnic_image']
-    del data['cnic_back']
-    del data['cnic_number']
 
     return Response(
         {
             'status': 'OK',
             'message': 'Request Successful',
-            'data': data
+            'data': serialized.data
         },
         status=status.HTTP_200_OK
     )

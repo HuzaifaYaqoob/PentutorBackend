@@ -4,7 +4,7 @@ from django.db.models import base
 from django.utils.timezone import now
 
 from django.contrib.auth.models import User
-from Utility.models import Country, City
+from Utility.models import Country, City, State
 from Content.models import Subject
 
 # Create your models here.
@@ -115,9 +115,12 @@ class Profile(models.Model):
     mobile = models.CharField(max_length=22, null=True, blank=True, default='')
 
     Country = models.ForeignKey(Country , on_delete=models.SET_NULL , null=True ,  blank=True )
+    state = models.ForeignKey(State , on_delete=models.SET_NULL , null=True ,  blank=True )
     city = models.ForeignKey(City , on_delete=models.SET_NULL , null=True ,  blank=True )
     area = models.CharField(max_length=500, default='')
     date_of_birth = models.DateField(default=None, blank=True, null=True)
+    brith_place = models.CharField(default='', blank=True, null=True, max_length=1000)
+    nationality = models.CharField(default='', blank=True, null=True, max_length=1000)
     gender = models.CharField(choices=GENDER_CHOICES, default='Male', max_length=10)
     detail = models.TextField(default='')
     qualification = models.CharField(max_length=200, default='')
@@ -167,3 +170,53 @@ class TeacherProfile(Profile):
 
     def __str__(self) :
         return self.name
+
+
+class UserQualification(models.Model):
+    id = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_qualifications')
+    
+    degree = models.CharField(max_length=500, default='')
+    subject = models.CharField(max_length=500, default='')
+    passing_year = models.CharField(max_length=500, default='')
+    institute = models.CharField(max_length=500, default='')
+
+
+    def __str__(self) :
+        return str(self.id)
+
+class UserExperience(models.Model):
+    id = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_expriences')
+    
+    position = models.CharField(max_length=500, default='')
+    from_date = models.CharField(max_length=500, default='')
+    to_date = models.CharField(max_length=500, default='')
+    institute = models.CharField(max_length=500, default='')
+    exprience_years = models.CharField(max_length=500, default='')
+
+
+    def __str__(self) :
+        return str(self.id)
+
+class UserReferences(models.Model):
+    id = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_references')
+    
+    name = models.CharField(max_length=500, default='')
+    mobile_number = models.CharField(max_length=500, default='')
+    email = models.CharField(max_length=500, default='')
+    relation = models.CharField(max_length=500, default='')
+
+
+    def __str__(self) :
+        return str(self.id)
+
+class UserMedia(models.Model):
+    id = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_medias')
+    
+    video = models.FileField(upload_to='tutor_videos/')
+
+    def __str__(self) :
+        return str(self.id)
