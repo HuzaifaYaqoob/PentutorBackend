@@ -32,46 +32,6 @@ class SubjectToTeach(models.Model):
     created_at = models.DateTimeField(auto_now=now)
 
 
-
-
-class Qualification(models.Model):
-    profile = models.ForeignKey('Profile' , on_delete=models.CASCADE , default=None, blank=True, related_name='profile_qualifications')
-
-    name= models.CharField(max_length=500, default='')
-    year = models.CharField(max_length=5 , default='')
-    institute = models.CharField(max_length=500, default='')
-    subject = models.ForeignKey(Subject, on_delete=models.SET_NULL , null=True, blank=True, )
-    grade = models.CharField(max_length=20 , default='', null=True, blank=True)
-
-    slug = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
-    created_at = models.DateTimeField(auto_now=now)
-
-
-class Experience(models.Model):
-    profile = models.ForeignKey('Profile' , on_delete=models.CASCADE , default=None, blank=True, related_name='profile_experiences')
-
-    title = models.CharField(max_length=600, default='')
-    org_name = models.CharField(max_length=1000, default='')
-    from_date = models.DateField(default=None , blank=True)
-    to_date= models.DateField(default=None, blank=True)
-
-    slug = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
-    created_at = models.DateTimeField(auto_now=now)
-
-class Reference(models.Model):
-    profile = models.ForeignKey('Profile' , on_delete=models.CASCADE , default=None, blank=True, related_name='profile_references')
-
-    name = models.CharField(max_length=600, default='')
-    mobile = models.CharField(max_length=30, default='')
-    email = models.EmailField(max_length=100, default='')
-    profession = models.CharField(max_length=600, default='')
-    relation = models.CharField(max_length=600, default='')
-    relation_time = models.CharField(max_length=600, default='')
-
-    slug = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
-    created_at = models.DateTimeField(auto_now=now)
-
-
 class Language(models.Model):
 
     LANGUAGE_LEVELCHOICES = [
