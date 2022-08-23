@@ -2,7 +2,7 @@
 
 from django.db.models import fields
 from rest_framework import serializers
-from .models import StudentProfile, TeacherProfile, UserExperience, UserMedia, UserQualification, UserReferences
+from .models import PreferredDays, StudentProfile, TeacherProfile, UserExperience, UserMedia, UserQualification, UserReferences
 
 from Authentication.serializers import UserSerializer
 from Utility.serializers import CountrySerializer, CitySerializer, StateSerializer
@@ -39,6 +39,11 @@ class UserMediaSerializer(serializers.ModelSerializer):
         model = UserMedia
         fields = '__all__'
 
+class PreferredDaysSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PreferredDays
+        fields = '__all__'
+
 
 class TeacherProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -50,6 +55,7 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
     experiences = serializers.SerializerMethodField()
     references = serializers.SerializerMethodField()
     videos = serializers.SerializerMethodField()
+    days = serializers.SerializerMethodField()
 
     def get_qualifications(self, obj):
         all_qualifications = UserQualification.objects.filter(user=obj.user)
@@ -70,6 +76,12 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
     def get_videos(self, obj):
         all_videos = UserMedia.objects.filter(user=obj.user)
         serialized = UserMediaSerializer(all_videos, many=True)
+        return serialized.data
+
+    def get_days(self, obj):
+        day = PreferredDays.objects.get_or_create(profile=obj)
+        print(day)
+        serialized = PreferredDaysSerializer(day)
         return serialized.data
 
 
@@ -103,4 +115,5 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
             'per_hour',
             'time_start',
             'time_end',
+            'days',
             ]

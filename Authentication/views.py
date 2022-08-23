@@ -10,6 +10,8 @@ from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 
+from Profile.models import TeacherProfile
+
 from .serializers import UserSerializer
 from Profile.Serializers import StudentProfileSerializers, TeacherProfileSerializer
 
@@ -86,7 +88,6 @@ def RegisterAPI(request):
 
         create_user._type = data['type']
         create_user.save()
-
         return JsonResponse(
             {
                 'status': 'success',
