@@ -11,7 +11,9 @@ from Content.models import Subject
 
 
 class PreferredDays(models.Model):
-    profile = models.ForeignKey('Profile' , on_delete=models.CASCADE , default=None, blank=True, related_name='profile_preferred_days')
+    profile = models.ForeignKey('Profile' , on_delete=models.CASCADE , default=None, blank=True, null=True, related_name='profile_preferred_days')
+    user = models.OneToOneField( User, on_delete=models.DO_NOTHING, blank=True, related_name='user_pref_days', default=None, null=True)
+
 
     monday = models.BooleanField(default=False)
     tuesday = models.BooleanField(default=False)
@@ -20,16 +22,23 @@ class PreferredDays(models.Model):
     friday = models.BooleanField(default=False)
     saturday = models.BooleanField(default=False)
     sunday = models.BooleanField(default=False)
+
+
     
 
 class SubjectToTeach(models.Model):
-    profile = models.ForeignKey('TeacherProfile' , on_delete=models.CASCADE , default=None, blank=True, related_name='teacher_subjects')
+    profile = models.ForeignKey('TeacherProfile' , on_delete=models.CASCADE , default=None, blank=True, null=True, related_name='teacher_subjects')
+    user = models.OneToOneField( User, on_delete=models.DO_NOTHING, blank=True, related_name='user_subjects_to_teach', default=None, null=True)
 
     subject = models.CharField(max_length=1000 , default='')
     level = models.CharField(max_length=1000 , default='')
 
     slug = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
     created_at = models.DateTimeField(auto_now=now)
+
+    def __str__(self):
+        return self.name
+
 
 
 class Language(models.Model):
@@ -44,6 +53,8 @@ class Language(models.Model):
     ]
 
     profile = models.ForeignKey('Profile' , on_delete=models.CASCADE , default=None, blank=True, related_name='profile_languages')
+    user = models.OneToOneField( User, on_delete=models.DO_NOTHING, blank=True, related_name='user_languages', default=None, null=True)
+
 
     name = models.CharField(max_length=100, default='')
     level = models.CharField(choices=LANGUAGE_LEVELCHOICES , max_length=5 , default='0', blank=True , null=True)
@@ -178,5 +189,22 @@ class UserMedia(models.Model):
     
     video = models.FileField(upload_to='tutor_videos/')
 
+    def __str__(self) :
+        return str(self.id)
+
+    
+class TutorProfessionalDetail(models.Model):
+    id = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_professional_details')
+    
+    time_availability = models.CharField(max_length=500, default='')
+    areas_to_teach = models.CharField(max_length=500, default='')
+    online_teaching = models.CharField(max_length=500, default='')
+    home_tutor_status = models.CharField(max_length=500, default='')
+    own_institute = models.CharField(max_length=500, default='')
+    fee = models.CharField(max_length=500, default='')
+    currently_employeed = models.CharField(max_length=500, default='')
+    short_courses = models.BooleanField(default=False)
+    
     def __str__(self) :
         return str(self.id)

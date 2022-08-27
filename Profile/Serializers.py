@@ -2,7 +2,7 @@
 
 from django.db.models import fields
 from rest_framework import serializers
-from .models import PreferredDays, StudentProfile, TeacherProfile, UserExperience, UserMedia, UserQualification, UserReferences
+from .models import PreferredDays, StudentProfile, SubjectToTeach, TeacherProfile, UserExperience, UserMedia, UserQualification, UserReferences, TutorProfessionalDetail, Language
 
 from Authentication.serializers import UserSerializer
 from Utility.serializers import CountrySerializer, CitySerializer, StateSerializer
@@ -17,6 +17,21 @@ class StudentProfileSerializers(serializers.ModelSerializer):
         model = StudentProfile
         fields = '__all__'
 
+
+class SubjectToTeachSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubjectToTeach
+        fields = '__all__'
+
+class TutorProfessionalDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TutorProfessionalDetail
+        fields = '__all__'
+
+class LanguageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Language
+        fields = '__all__'
 
 class UserQualificationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,6 +72,27 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
     videos = serializers.SerializerMethodField()
     days = serializers.SerializerMethodField()
 
+    professional_details = serializers.SerializerMethodField()
+
+    def get_professional_details(self, obj):
+        data = dict()
+
+        langs = Language.objects.filter(user=obj.user)
+        serialized = LanguageSerializer(langs, many=True)
+        data['languages'] = serialized.data
+
+
+        pf_detail, created = TutorProfessionalDetail.objects.get_or_create(user=obj.user)
+
+        p_ser = TutorProfessionalDetailSerializer(pf_detail)
+        data.update(p_ser.data)
+
+        subjcs = SubjectToTeach.objects.filter(user=obj.user)
+        serialized = SubjectToTeachSerializer(subjcs, many=True)
+        data['subjects'] = serialized.data
+
+        return data
+
     def get_qualifications(self, obj):
         all_qualifications = UserQualification.objects.filter(user=obj.user)
         serialized = UserQualificationSerializer(all_qualifications, many=True)
@@ -79,8 +115,8 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         return serialized.data
 
     def get_days(self, obj):
-        day = PreferredDays.objects.get_or_create(profile=obj)
-        print(day)
+        day, created = PreferredDays.objects.get_or_create(profile=obj)
+        print(' day ::: ' , day)
         serialized = PreferredDaysSerializer(day)
         return serialized.data
 
@@ -116,4 +152,5 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
             'time_start',
             'time_end',
             'days',
+            'professional_details',
             ]
