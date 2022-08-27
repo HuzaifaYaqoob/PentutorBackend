@@ -31,7 +31,8 @@ ALLOWED_HOSTS = [
     'pentutors.com' , 
     'www.pentutors.com' , 
     '127.0.0.1',
-    '192.168.115.107'
+    '192.168.115.107',
+    '*'
     ]
 
 
