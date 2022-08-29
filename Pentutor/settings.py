@@ -116,18 +116,18 @@ CHANNEL_LAYERS = {
 }
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # },
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME':  'pentutordb',
-        'USER' : 'admin',
-        'PASSWORD' : 'django1512' ,
-        'HOST' : 'localhost' ,
-        'PORT' : 5432
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME':  'pentutordb',
+    #     'USER' : 'admin',
+    #     'PASSWORD' : 'django1512' ,
+    #     'HOST' : 'localhost' ,
+    #     'PORT' : 5432
+    # },
 }
 
 
@@ -188,3 +188,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR , 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+FRONT_END_URL = 'localhost:8000'
