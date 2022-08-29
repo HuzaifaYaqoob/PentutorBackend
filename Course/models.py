@@ -6,7 +6,14 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 
-
+class CourseCategory(models.Model):
+    slug = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
+    title = models.CharField(max_length=500, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return str(self.slug)
+    
 
 class Course(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True, related_name='user_courses')
@@ -14,8 +21,7 @@ class Course(models.Model):
     title = models.CharField(max_length=500, default='')
     short_title = models.CharField(max_length=300, default='')
     language = models.CharField(max_length=100, default='')
-
-    category = models.CharField(default='', max_length=200)
+    course_category = models.ForeignKey(CourseCategory, null=True, blank=True, on_delete=models.CASCADE)
     level = models.CharField(default='', max_length=200)
 
     price = models.PositiveIntegerField(default=0)

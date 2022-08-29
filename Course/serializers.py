@@ -1,9 +1,8 @@
-
-
-
+from dataclasses import fields
+from pyexpat import model
 from rest_framework import serializers
-
-from .models import Course, CourseChapter, CourseMedia, CourseReview, ChapterVideo
+from django.conf import settings
+from .models import Course, CourseCategory, CourseChapter, CourseMedia, CourseReview, ChapterVideo
 
 
 class CourseMediaSerializer(serializers.ModelSerializer):
@@ -19,6 +18,14 @@ class CourseSerializer(serializers.ModelSerializer):
     students = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
     star_rating = serializers.SerializerMethodField()
+    image_link = serializers.SerializerMethodField()
+    
+    def get_image_link(self, obj):
+        try:
+            media = CourseMedia.objects.get(course=obj).image
+            return f"{settings.FRONT_END_URL}/{media}"
+        except:
+            media = None
 
     def get_media(self, obj):
         all_media = CourseMedia.objects.filter(course=obj)
@@ -55,7 +62,7 @@ class CourseSerializer(serializers.ModelSerializer):
             'title',
             'short_title',
             'language',
-            'category',
+            'course_category',
             'level',
             'price',
             'slug',
@@ -65,5 +72,17 @@ class CourseSerializer(serializers.ModelSerializer):
             'students',
             'review_count',
             'star_rating',
-            'description'
+            'description',
+            'image_link'
         ]
+        
+class CourseCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseCategory
+        fields = '__all__'
+        
+
+class CourseChapterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseChapter
+        fields = '__all__'
