@@ -6,9 +6,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import CourseCategorySerializer, CourseChapterSerializer, CourseSerializer
+from .serializers import ChapterVideoSerializer, CourseCategorySerializer, CourseChapterSerializer, CourseMediaSerializer, CourseSerializer
 
-from .models import Course, CourseCategory, CourseMedia
+from .models import ChapterVideo, Course, CourseCategory, CourseChapter, CourseMedia
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -116,6 +116,25 @@ def update_course(request):
     serializer = CourseSerializer(course)
     return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_course_media(request):
+    course = request.data['course'] if 'course' in request.data else None
+    image = request.data['image'] if 'image' in request.data else None
+
+    if not course:
+        return Response({'status' : False, 'data' : 'Invalid Data!'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        course = Course.objects.get(slug=course)
+    except Exception as e:
+        return Response({'status' : False, 'data' : str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+    media = CourseMedia.objects.create(course=course, image=image)
+    serializer = CourseMediaSerializer(media)
+    return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_201_CREATED)
+
+    
+    
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -144,3 +163,25 @@ def create_course_chapter(request):
         return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_201_CREATED)
     else:
         return Response({'status' : False, 'data' : serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_chapter_video(request):
+    chapter = request.data['chapter'] if 'chapter' in request.data else None
+    video = request.data['video'] if 'video' in request.data else None
+    
+    if not chapter or not video:
+        return Response({'status' : False, 'data' : 'Invalid Data!'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        chapter = CourseChapter.objects.get(slug=chapter)
+    except Exception as e:
+        return Response({'status' : False, 'data' : str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    video = ChapterVideo.objects.create(video=video, chapter=chapter, course=chapter.course)
+    serializer = ChapterVideoSerializer(video)
+    return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_201_CREATED)
+
+
+    
