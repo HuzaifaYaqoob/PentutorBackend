@@ -51,7 +51,9 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = [
+            'user',
             'title',
+            'short_title',
             'language',
             'category',
             'level',
@@ -63,4 +65,5 @@ class CourseSerializer(serializers.ModelSerializer):
             'students',
             'review_count',
             'star_rating',
+            'description'
         ]
