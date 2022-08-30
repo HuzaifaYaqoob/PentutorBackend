@@ -29,7 +29,7 @@ class ChapterVideoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChapterVideo
-        fields = ['course', 'chapter', 'video', 'vid_thumbnail', 'duration', 'slug', 'created_at']
+        fields = ['course', 'title', 'chapter', 'video', 'vid_thumbnail', 'duration', 'slug', 'created_at']
 
 
 class CourseMediaSerializer(serializers.ModelSerializer):
@@ -47,9 +47,15 @@ class CourseMediaSerializer(serializers.ModelSerializer):
         
 
 class CourseChapterSerializer(serializers.ModelSerializer):
+    video = serializers.SerializerMethodField()
+    
+    def get_video(self, obj):
+        video = ChapterVideo.objects.filter(chapter=obj)
+        serializer = ChapterVideoSerializer(video, many=True).data
+        return serializer
     class Meta:
         model = CourseChapter
-        fields = ['title', 'course', 'slug', 'created_at']
+        fields = ['title', 'course', 'slug', 'created_at', 'video']
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -59,8 +65,13 @@ class CourseSerializer(serializers.ModelSerializer):
     students = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
     star_rating = serializers.SerializerMethodField()
+    chapter = serializers.SerializerMethodField()
     
     
+    def get_chapter(self, obj):
+        chapters = CourseChapter.objects.filter(course=obj)
+        serializer = CourseChapterSerializer(chapters, many=True).data
+        return serializer
     
     def get_media(self, obj):
         all_media = CourseMedia.objects.filter(course=obj)
@@ -107,5 +118,6 @@ class CourseSerializer(serializers.ModelSerializer):
             'students',
             'review_count',
             'star_rating',
-            'description'
+            'description',
+            'chapter'
         ]

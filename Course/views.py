@@ -170,8 +170,9 @@ def create_course_chapter(request):
 def create_chapter_video(request):
     chapter = request.data['chapter'] if 'chapter' in request.data else None
     video = request.data['video'] if 'video' in request.data else None
+    title = request.data['title'] if 'title' in request.data else None
     
-    if not chapter or not video:
+    if not chapter or not video or not title:
         return Response({'status' : False, 'data' : 'Invalid Data!'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
@@ -179,9 +180,27 @@ def create_chapter_video(request):
     except Exception as e:
         return Response({'status' : False, 'data' : str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-    video = ChapterVideo.objects.create(video=video, chapter=chapter, course=chapter.course)
+    video = ChapterVideo.objects.create(video=video, chapter=chapter, course=chapter.course, title=title)
     serializer = ChapterVideoSerializer(video)
     return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_chapter_video(request):
+    user = request.user
+    video = request.data['video'] if 'video' in request.data else None
+    if not video:
+        return Response({'status' : False, 'data' : 'Invalid Data!'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        video = ChapterVideo.objects.get(slug=video)
+    except Exception as e:
+        return Response({'status' : False, 'data' : str(e)}, status=status.HTTP_404_NOT_FOUND)
+    if user == video.chapter.course.user:
+        video.delete()
+        return Response({'status' : True, 'data' : 'Video Deleted Successfully'}, status=status.HTTP_200_OK)
+    else:
+        return Response({'status' : False, 'data' : 'Ops, You have no permission to delete video!'}, status=status.HTTP_400_BAD_REQUEST)
 
 
     
@@ -191,4 +210,42 @@ def get_my_courses(request):
     user = request.user
     courses = Course.objects.filter(user=user)
     serializer = CourseSerializer(courses, many=True)
+    return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_course_chapter(request):
+    title = request.data['title'] if 'title' in request.data else None
+    chapter = request.data['chapter'] if 'chapter' in request.data else None
+    
+    if not chapter:
+        return Response({'status' : False, 'data' : 'Invalid Data!'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        chapter = CourseChapter.objects.get(slug=chapter)
+    except Exception as e:
+        return Response({'status' : True, 'data' : str(e)}, status=status.HTTP_404_NOT_FOUND)
+    
+    if title:
+        chapter.title = title
+    chapter.save()
+    serializer = CourseChapterSerializer(chapter)
+    return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_course_chapters(request):
+    course = request.query_params.get('course', None)
+    if not course:
+        return Response({'status' : False, 'data' : 'Invalid Data!'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        course = Course.objects.get(slug=course)
+    except Exception as e:
+        return Response({'status' : True, 'data' : str(e)}, status=status.HTTP_404_NOT_FOUND)
+    
+    chapters = CourseChapter.objects.filter(course=course)
+    serializer = CourseChapterSerializer(chapters, many=True)
     return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_200_OK)

@@ -61,6 +61,7 @@ class CourseChapter(models.Model):
 
 
 class ChapterVideo(models.Model):
+    title = models.CharField(max_length=500, default='')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_videos')
     chapter = models.ForeignKey(CourseChapter, on_delete=models.CASCADE, related_name='chapter_videos')
     video = models.FileField(upload_to='courses/chapter/videos/')
