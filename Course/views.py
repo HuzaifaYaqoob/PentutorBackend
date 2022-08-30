@@ -185,3 +185,10 @@ def create_chapter_video(request):
 
 
     
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_my_courses(request):
+    user = request.user
+    courses = Course.objects.filter(user=user)
+    serializer = CourseSerializer(courses, many=True)
+    return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_200_OK)

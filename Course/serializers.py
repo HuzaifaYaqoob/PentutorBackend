@@ -11,6 +11,47 @@ class CourseMediaSerializer(serializers.ModelSerializer):
         fields = ['slug', 'image']
 
 
+        
+class CourseCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseCategory
+        fields = '__all__'
+        
+        
+class ChapterVideoSerializer(serializers.ModelSerializer):
+    video = serializers.SerializerMethodField()
+    
+    def get_video(self, obj):
+        if obj.video:
+            return f"{settings.FRONT_END_URL}/{obj.video}"
+        else:
+            return None
+
+    class Meta:
+        model = ChapterVideo
+        fields = ['course', 'chapter', 'video', 'vid_thumbnail', 'duration', 'slug', 'created_at']
+
+
+class CourseMediaSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+    
+    def get_image(self, obj):
+        if obj.image:
+            return f"{settings.FRONT_END_URL}/{obj.image}"
+        else:
+            return None
+
+    class Meta:
+        model = CourseMedia
+        fields = ['course', 'image', 'slug', 'created_at']
+        
+
+class CourseChapterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseChapter
+        fields = ['title', 'course', 'slug', 'created_at']
+
+
 class CourseSerializer(serializers.ModelSerializer):
     media = serializers.SerializerMethodField()
     duration = serializers.SerializerMethodField()
@@ -18,6 +59,7 @@ class CourseSerializer(serializers.ModelSerializer):
     students = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
     star_rating = serializers.SerializerMethodField()
+    
     
     
     def get_media(self, obj):
@@ -67,42 +109,3 @@ class CourseSerializer(serializers.ModelSerializer):
             'star_rating',
             'description'
         ]
-        
-class CourseCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CourseCategory
-        fields = '__all__'
-        
-
-class CourseChapterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CourseChapter
-        fields = '__all__'
-        
-        
-class ChapterVideoSerializer(serializers.ModelSerializer):
-    video = serializers.SerializerMethodField()
-    
-    def get_video(self, obj):
-        if obj.video:
-            return f"{settings.FRONT_END_URL}/{obj.video}"
-        else:
-            return None
-
-    class Meta:
-        model = ChapterVideo
-        fields = ['course', 'chapter', 'video', 'vid_thumbnail', 'duration', 'slug', 'created_at']
-
-
-class CourseMediaSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
-    
-    def get_image(self, obj):
-        if obj.image:
-            return f"{settings.FRONT_END_URL}/{obj.image}"
-        else:
-            return None
-
-    class Meta:
-        model = CourseMedia
-        fields = ['course', 'image', 'slug', 'created_at']

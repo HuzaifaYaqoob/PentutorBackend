@@ -14,6 +14,7 @@ urlpatterns = [
     path('create_course_chapter/' , views.create_course_chapter),
     path('create_chapter_video/' , views.create_chapter_video),
     path('create_course_media/' , views.create_course_media),
+    path('get_my_courses/' , views.get_my_courses),
 
     
 ]
