@@ -249,3 +249,16 @@ def get_course_chapters(request):
     chapters = CourseChapter.objects.filter(course=course)
     serializer = CourseChapterSerializer(chapters, many=True)
     return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_course(request):
+    course = request.query_params.get('course', None)
+    if not course:
+            return Response({'status' : False, 'data' : 'Invalid Data!'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        course = Course.objects.get(slug=course)
+    except Exception as e:
+        return Response({'status' : True, 'data' : str(e)}, status=status.HTTP_404_NOT_FOUND)
+    serializer = CourseSerializer(course)
+    return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_200_OK)

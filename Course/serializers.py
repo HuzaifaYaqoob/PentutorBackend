@@ -20,10 +20,17 @@ class CourseCategorySerializer(serializers.ModelSerializer):
         
 class ChapterVideoSerializer(serializers.ModelSerializer):
     video = serializers.SerializerMethodField()
+    vid_thumbnail = serializers.SerializerMethodField()
     
     def get_video(self, obj):
         if obj.video:
             return f"{settings.FRONT_END_URL}/{obj.video}"
+        else:
+            return None
+        
+    def get_vid_thumbnail(self, obj):
+        if obj.vid_thumbnail:
+            return f"{settings.FRONT_END_URL}/{obj.vid_thumbnail}"
         else:
             return None
 
