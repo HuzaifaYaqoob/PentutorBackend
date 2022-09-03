@@ -1,8 +1,7 @@
-from dataclasses import fields
 from pyexpat import model
 from rest_framework import serializers
 from django.conf import settings
-from .models import Course, CourseCategory, CourseChapter, CourseMedia, CourseReview, ChapterVideo
+from .models import CartItem, Course, CourseCategory, CourseChapter, CourseMedia, CourseReview, ChapterVideo
 
 
 class CourseMediaSerializer(serializers.ModelSerializer):
@@ -128,3 +127,15 @@ class CourseSerializer(serializers.ModelSerializer):
             'description',
             'chapter'
         ]
+        
+class CourseReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseReview
+        fields = '__all__'
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = '__all__'
+    

@@ -19,6 +19,11 @@ urlpatterns = [
     path('delete_chapter_video/' , views.delete_chapter_video),
     path('get_course_chapters/' , views.get_course_chapters),
     path('get_course/' , views.get_course),
+    
+    path('add_to_cart/' , views.add_to_cart),
+    path('get_my_cart/' , views.get_my_cart),
+    path('delete_cart/' , views.delete_cart),
+    path('update_cart/' , views.update_cart),
 
     
 ]

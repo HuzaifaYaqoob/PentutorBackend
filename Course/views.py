@@ -6,9 +6,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import ChapterVideoSerializer, CourseCategorySerializer, CourseChapterSerializer, CourseMediaSerializer, CourseSerializer
+from .serializers import ChapterVideoSerializer, CourseCategorySerializer, CourseChapterSerializer, CourseMediaSerializer, CourseSerializer, CourseReviewSerializer, CartItemSerializer
 
-from .models import ChapterVideo, Course, CourseCategory, CourseChapter, CourseMedia
+from .models import CartItem, ChapterVideo, Course, CourseCategory, CourseChapter, CourseMedia, CourseReview
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -262,3 +262,165 @@ def get_course(request):
         return Response({'status' : True, 'data' : str(e)}, status=status.HTTP_404_NOT_FOUND)
     serializer = CourseSerializer(course)
     return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_store_rating(request):
+    course = request.data['course'] if 'course' in request.data else None
+    review = request.data['review'] if 'review' in request.data else None
+    rate = request.data['rate'] if 'rate' in request.data else None
+    user = request.user
+    
+    if not course or not review or not rate:
+        return Response({"success": False, 'response': 'Invalid Data!'},
+                    status=status.HTTP_400_BAD_REQUEST)
+    try:
+        course = Course.objects.get(slug=course)
+    except Exception as e:
+        return Response({'success': False, 'response': str(e)},
+                        status=status.HTTP_404_NOT_FOUND)
+
+    rating = CourseReview.objects.create(course=course, review=review, rate=rate, user=user)
+    serializer = CourseReviewSerializer(rating)
+    return Response({'success': True, 'message': serializer.data},
+                                status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_store_rating(request):
+    course = request.query_params.get('business_store', None)
+    if not course:
+        return Response({"success": False, 'response': 'Invalid Data!'},
+                    status=status.HTTP_400_BAD_REQUEST)
+    try:
+        course = Course.objects.get(slug=course)
+    except Exception as e:
+        return Response({'success': False, 'response': str(e)},
+                        status=status.HTTP_404_NOT_FOUND)
+
+    rating = CourseReview.objects.filter(course=course)
+
+    serializer = CourseReviewSerializer(rating, many=True)
+    return Response({'success': True, 'message': serializer.data},
+                                status=status.HTTP_201_CREATED)
+
+@api_view(['DELETE'])
+@permission_classes([AllowAny])
+def delete_store_rating(request):
+    rating = request.data['rating'] if 'rating' in request.data else None
+
+    if not rating:
+        return Response({"success": False, 'response': 'Invalid Data!'},
+                    status=status.HTTP_400_BAD_REQUEST)
+    try:
+        rating = CourseReview.objects.get(slug=rating)
+    except Exception as e:
+        return Response({'success': False, 'response': str(e)},
+                        status=status.HTTP_404_NOT_FOUND)
+    
+    rating.delete()
+    return Response({'success': True, 'message': 'Deleted Successfully!'},
+                                status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_store_rating(request):
+    rating = request.data['rating'] if 'rating' in request.data else None
+    review = request.data['review'] if 'review' in request.data else None
+    rate = request.data['rate'] if 'rate' in request.data else None
+    user = request.user
+
+    try:
+        rating = CourseReview.objects.get(slug=rating)
+    except Exception as e:
+        return Response({'success': False, 'response': str(e)},
+                        status=status.HTTP_404_NOT_FOUND)
+    if review:
+        rating.review = review
+    if rate:
+        rating.rate = rate
+    rating.save()
+
+    serializer = CourseReviewSerializer(rating)
+    return Response({'success': True, 'message': serializer.data},
+                                status=status.HTTP_200_OK)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_to_cart(request):
+    user = request.user
+    course = request.data['course'] if 'course' in request.data else None
+    quantity = request.data['quantity'] if 'quantity' in request.data else None
+    if not course:
+        return Response({"success": False, 'response': 'Invalid Data!'},
+                    status=status.HTTP_400_BAD_REQUEST)
+    try:
+        course = Course.objects.get(slug=course)
+    except Exception as e:
+        return Response({'success': False, 'response': str(e)},
+                        status=status.HTTP_404_NOT_FOUND)
+    if not quantity:
+        quantity = 1 
+    cart = CartItem.objects.create(course=course, user=user, quantity=quantity, course_cart=True)
+    serializer = CartItemSerializer(cart)
+    return Response({'success': True, 'message': serializer.data},
+                                status=status.HTTP_201_CREATED)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_my_cart(request):
+    user = request.user
+    cart = CartItem.objects.filter(user=user)
+    serializer = CartItemSerializer(cart, many=True)
+    return Response({'success': True, 'message': serializer.data},
+                                status=status.HTTP_200_OK)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_cart(request):
+    user = request.user
+    cart = request.data['cart'] if 'cart' in request.data else None
+    if not cart:
+        return Response({"success": False, 'response': 'Invalid Data!'},
+                    status=status.HTTP_400_BAD_REQUEST)
+    try:
+        cart = CartItem.objects.get(slug=cart)
+    except Exception as e:
+        return Response({'success': False, 'response': str(e)},
+                        status=status.HTTP_404_NOT_FOUND)
+    if user == cart.user:
+        cart.delete()
+        return Response({"success": True, 'response': 'Deleted Successfully!'},
+                status=status.HTTP_200_OK)
+    else:
+        return Response({"success": False, 'response': 'Ops, You have no permission to delete!'},
+            status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_cart(request):
+    user = request.user
+    quantity = request.data['quantity'] if 'quantity' in request.data else None
+    cart = request.data['cart'] if 'cart' in request.data else None
+    if not cart:
+        return Response({"success": False, 'response': 'Invalid Data!'},
+                    status=status.HTTP_400_BAD_REQUEST)
+    try:
+        cart = CartItem.objects.get(slug=cart)
+    except Exception as e:
+        return Response({'success': False, 'response': str(e)},
+                        status=status.HTTP_404_NOT_FOUND)
+    if user == cart.user:
+        if quantity:
+            cart.quantity = quantity
+            cart.save()
+        serializer = CartItemSerializer(cart)
+        return Response({"success": True, 'response': serializer.data},
+                status=status.HTTP_200_OK)
+    else:
+        return Response({"success": False, 'response': 'Ops, You have no permission to update!'},
+            status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    

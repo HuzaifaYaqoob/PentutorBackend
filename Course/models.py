@@ -112,13 +112,27 @@ class ChapterVideo(models.Model):
 
     def __str__(self):
         return str(self.slug)
-
-
+    
 class CourseReview(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_reviews')
-
     slug = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
-    created_at = models.DateTimeField(auto_now=now)
-
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='coursereview_course')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True, related_name='coursereview_user')
+    review = models.TextField(null=True, blank=True)
+    rate = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
     def __str__(self):
-        return str(self.slug)
+        return str(self.course)
+    
+    
+class CartItem(models.Model):
+    slug = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='cartitem_course')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True, related_name='cartitem_user')
+    quantity = models.IntegerField(default=1)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    course_cart = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return str(self.course)
