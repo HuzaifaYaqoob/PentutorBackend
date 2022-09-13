@@ -6,9 +6,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import ChapterVideoSerializer, CourseCategorySerializer, CourseChapterSerializer, CourseMediaSerializer, CourseSerializer, CourseReviewSerializer, CartItemSerializer
+from .serializers import ChapterVideoSerializer, CourseCategorySerializer, CourseChapterSerializer, CourseMediaSerializer, CourseSerializer, CourseReviewSerializer, CartItemSerializer, CourseSessionSerializer, GetCourseSessionSerializer
 
-from .models import CartItem, ChapterVideo, Course, CourseCategory, CourseChapter, CourseMedia, CourseReview
+from .models import CartItem, ChapterVideo, Course, CourseCategory, CourseChapter, CourseDay, CourseMedia, CourseReview, CourseSession
+from Profile.models import *
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -234,6 +235,24 @@ def update_course_chapter(request):
     return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_200_OK)
 
 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_course_chapter(request):
+    chapter = request.data['chapter'] if 'chapter' in request.data else None
+    if not chapter:
+        return Response({'status' : False, 'data' : 'Invalid Data!'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        chapter = CourseChapter.objects.get(slug=chapter)
+        video = chapter.chapter_videos.all()
+        video.delete()
+        chapter.delete()
+        return Response({'status' : True, 'data' : 'Chapter Deleted Successfully!!'}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'status' : True, 'data' : str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_course_chapters(request):
@@ -422,5 +441,150 @@ def update_cart(request):
         return Response({"success": False, 'response': 'Ops, You have no permission to update!'},
             status=status.HTTP_400_BAD_REQUEST)
         
-        
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_course_session(request):
+    title = request.data.get('title', None)
+    instructor = request.data.get('instructor', None)
+    course = request.data.get('course', None)
+    start_date = request.data.get('start_date', None)
+    end_date = request.data.get('end_date', None)
+    course_days = request.data.get('course_days', None)
+    start_time = request.data.get('start_time', None)
+    duration = request.data.get('duration', None)
     
+    if not title or not instructor or not course or not start_date \
+    or not end_date or not course_days or not start_time or not duration:
+        return Response({"success": False, 'response': 'Invalid Data!'},
+            status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    try:
+        instructor = TeacherProfile.objects.get(slug=instructor)
+    except Exception as e:
+        return Response({"success": False, 'response': str(e)},
+            status=status.HTTP_404_NOT_FOUND)
+    request.data._mutable = True
+    request.data['instructor'] = str(instructor.slug)
+    
+    serializer = CourseSessionSerializer(data=request.data)
+    if serializer.is_valid():
+        course_session = serializer.save()
+        if course_days:
+            course_days = course_days[1:-1].split(',')
+            course_days = [int(i) for i in course_days]
+            for i in course_days:
+                try:
+                    course_day = CourseDay.objects.get(id=i)
+                    course_session.course_days.add(course_day)
+                except:
+                    pass
+        serializer = GetCourseSessionSerializer(course_session)
+        return Response({"success": True, 'response': serializer.data},
+                status=status.HTTP_201_CREATED)
+
+    return Response({"success": False, 'response': serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_course_session(request):
+    title = request.data.get('title', None)
+    instructor = request.data.get('instructor', None)
+    course = request.data.get('course', None)
+    start_date = request.data.get('start_date', None)
+    end_date = request.data.get('end_date', None)
+    course_days = request.data.get('course_days', None)
+    start_time = request.data.get('start_time', None)
+    duration = request.data.get('duration', None)
+    slug = request.data.get('slug', None)
+
+    if not slug:
+        return Response({"success": False, 'response': 'Invalid Data!'},
+            status=status.HTTP_400_BAD_REQUEST)
+    try:
+        course_session = CourseSession.objects.get(slug=slug)
+    except Exception as e:
+        return Response({"success": False, 'response': str(e)},
+            status=status.HTTP_404_NOT_FOUND)
+
+    if instructor:
+        try:
+            instructor = TeacherProfile.objects.get(slug=instructor)
+        except Exception as e:
+            return Response({"success": False, 'response': str(e)},
+                status=status.HTTP_404_NOT_FOUND)
+            
+        course_session.instructor = instructor
+
+    if course:
+        try:
+            course = Course.objects.get(slug=course)
+        except Exception as e:
+            return Response({"success": False, 'response': str(e)},
+                status=status.HTTP_404_NOT_FOUND)
+            
+        course_session.course = course
+
+    if title:
+        course_session.title = title
+    if start_date:
+        course_session.start_date = start_date
+    if end_date:
+        course_session.end_date = end_date
+    if start_time:
+        course_session.start_time = start_time
+    if duration:
+        course_session.duration = duration
+    if course_days:
+        course_days = course_days[1:-1].split(',')
+        course_days = [int(i) for i in course_days]
+        for i in course_days:
+            try:
+                course_day = CourseDay.objects.get(id=i)
+                course_session.course_days.add(course_day)
+            except:
+                pass
+    course_session.save()
+    serializer = GetCourseSessionSerializer(course_session)
+    return Response({"success": True, 'response': serializer.data},
+            status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_course_session(request):
+    course = request.query_params.get('course', None)
+    if not course:
+        return Response({"success": False, 'response': 'Invalid Data!'},
+            status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        course = Course.objects.get(slug=course)
+    except Exception as e:
+        return Response({"success": False, 'response': str(e)},
+                status=status.HTTP_404_NOT_FOUND)
+    
+    course_session = CourseSession.objects.filter(course=course)
+    serializer = GetCourseSessionSerializer(course_session, many=True)
+    return Response({"success": True, 'response': serializer.data},
+            status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_course_session(request):
+    slug = request.data.get('slug', None)
+
+    if not slug:
+        return Response({"success": False, 'response': 'Invalid Data!'},
+            status=status.HTTP_400_BAD_REQUEST)
+    try:
+        course_session = CourseSession.objects.get(slug=slug)
+        course_session.delete()
+        return Response({"success": True, 'response': 'Deleted successfuly!'},
+            status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"success": False, 'response': str(e)},
+            status=status.HTTP_404_NOT_FOUND)

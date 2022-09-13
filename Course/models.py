@@ -12,6 +12,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.contrib.auth import get_user_model
 import random
 import string
+from Profile.models import TeacherProfile
 Image.MAX_IMAGE_PIXELS = 933120000
 # Create your models here.
 
@@ -136,3 +137,42 @@ class CartItem(models.Model):
     
     def __str__(self):
         return str(self.course)
+    
+class CourseDay(models.Model):
+    name = models.CharField(max_length=255, null=True, blank=True) 
+    created_at = models.DateTimeField(auto_now_add=True)
+    course_cart = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return str(self.name)
+    
+class CourseSession(models.Model):
+
+    TYPE_CHOICE = [
+        ('OnCampus', 'On Campus'),
+        ('Online', 'Online'),
+    ]
+    DURATION_CHOICES = [
+        ('TwoMonths', 'Two Months'),
+        ('FourMonths', 'Four Months'),
+        ('FiveMonths', 'Five Months'),
+        ('SixMonths', 'Six Months'),
+        ('MoreSixMonths', 'More than Six Months'),
+    ]
+    slug = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
+    title = models.CharField(max_length=255, null=True, blank=True)
+    instructor = models.ForeignKey(TeacherProfile, on_delete=models.CASCADE, null=True, blank=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='coursesession_course')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True, related_name='coursesession_user')
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    course_days = models.ManyToManyField(CourseDay, blank=True)
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    session_type = models.CharField(max_length=255, choices=TYPE_CHOICE, null=True, blank=True)
+    duration = models.CharField(max_length=255, choices=DURATION_CHOICES, null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    course_cart = models.BooleanField(default=False)
+    def __str__(self):
+        return str(self.title)

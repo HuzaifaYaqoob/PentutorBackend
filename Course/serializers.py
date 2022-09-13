@@ -1,7 +1,6 @@
-from pyexpat import model
 from rest_framework import serializers
 from django.conf import settings
-from .models import CartItem, Course, CourseCategory, CourseChapter, CourseMedia, CourseReview, ChapterVideo
+from .models import CartItem, Course, CourseCategory, CourseChapter, CourseDay, CourseMedia, CourseReview, ChapterVideo, CourseSession
 
 
 class CourseMediaSerializer(serializers.ModelSerializer):
@@ -139,3 +138,28 @@ class CartItemSerializer(serializers.ModelSerializer):
         model = CartItem
         fields = '__all__'
     
+class CourseSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseSession
+        fields = ['slug', 'title', 'instructor', 'course', 'user','start_date',
+            'end_date', 'start_time', 'end_time', 'session_type',
+            'duration', 'created_at'
+        ]
+
+class CourseDaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseDay
+        fields = '__all__'
+
+class GetCourseSessionSerializer(serializers.ModelSerializer):
+    course_days = CourseDaySerializer(many=True)
+    
+    class Meta:
+        model = CourseSession
+        fields = [
+            'slug', 'title', 'instructor', 'course', 'user','start_date',
+            'end_date', 'start_time', 'end_time', 'session_type',
+            'duration', 'created_at', 'course_days'
+        ]
+        
+        

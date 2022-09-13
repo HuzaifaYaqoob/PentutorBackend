@@ -16,6 +16,7 @@ urlpatterns = [
     path('create_course_media/' , views.create_course_media),
     path('get_my_courses/' , views.get_my_courses),
     path('update_course_chapter/' , views.update_course_chapter),
+    path('delete_course_chapter/' , views.delete_course_chapter),
     path('delete_chapter_video/' , views.delete_chapter_video),
     path('get_course_chapters/' , views.get_course_chapters),
     path('get_course/' , views.get_course),
@@ -24,6 +25,12 @@ urlpatterns = [
     path('get_my_cart/' , views.get_my_cart),
     path('delete_cart/' , views.delete_cart),
     path('update_cart/' , views.update_cart),
+    
+    
+    path('create_course_session/' , views.create_course_session),
+    path('update_course_session/' , views.update_course_session),
+    path('get_course_session/' , views.get_course_session),
+    path('delete_course_session/' , views.delete_course_session),
 
     
 ]
