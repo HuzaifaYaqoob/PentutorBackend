@@ -1,5 +1,6 @@
 
 
+from django.conf import settings
 from django.db.models import fields
 from rest_framework import serializers
 from .models import PreferredDays, StudentProfile, SubjectToTeach, TeacherProfile, UserExperience, UserMedia, UserQualification, UserReferences, TutorProfessionalDetail, Language
@@ -12,6 +13,20 @@ class StudentProfileSerializers(serializers.ModelSerializer):
     user = UserSerializer()
     Country = CountrySerializer()
     city = CitySerializer()
+
+    profile_image = serializers.SerializerMethodField()
+    degree_image = serializers.SerializerMethodField()
+    cnic_image = serializers.SerializerMethodField()
+    cnic_back = serializers.SerializerMethodField()
+
+    def get_profile_image(self, obj):
+        return f'{settings.BACKEND_URL}/media/{obj.profile_image}'
+    def get_degree_image(self, obj):
+        return f'{settings.BACKEND_URL}/media/{obj.degree_image}'
+    def get_cnic_image(self, obj):
+        return f'{settings.BACKEND_URL}/media/{obj.cnic_image}'
+    def get_cnic_back(self, obj):
+        return f'{settings.BACKEND_URL}/media/{obj.cnic_back}'
 
     class Meta:
         model = StudentProfile
