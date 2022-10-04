@@ -79,7 +79,7 @@ class Profile(models.Model):
 
     ]
 
-    user = models.OneToOneField( User, on_delete=models.DO_NOTHING, blank=True, related_name='user_profile')
+    user = models.OneToOneField( User, on_delete=models.CASCADE, blank=True, related_name='user_profile')
     name = models.CharField(max_length=200, default='')
     user_type = models.CharField(choices=TYPE_CHOICES, default='Student', max_length=20)
 
@@ -105,6 +105,8 @@ class Profile(models.Model):
     is_approved = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)
+    
 
     slug = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
     created_at = models.DateTimeField(auto_now=now)

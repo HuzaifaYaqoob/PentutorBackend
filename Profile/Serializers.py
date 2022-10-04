@@ -20,13 +20,25 @@ class StudentProfileSerializers(serializers.ModelSerializer):
     cnic_back = serializers.SerializerMethodField()
 
     def get_profile_image(self, obj):
-        return f'{settings.BACKEND_URL}/media/{obj.profile_image}'
+        if obj.profile_image:
+            return f'{settings.BACKEND_URL}/media/{obj.profile_image}'
+        else:
+            return None
     def get_degree_image(self, obj):
-        return f'{settings.BACKEND_URL}/media/{obj.degree_image}'
+        if obj.degree_image:
+            return f'{settings.BACKEND_URL}/media/{obj.degree_image}'
+        else:
+            return None
     def get_cnic_image(self, obj):
-        return f'{settings.BACKEND_URL}/media/{obj.cnic_image}'
+        if obj.cnic_image:
+            return f'{settings.BACKEND_URL}/media/{obj.cnic_image}'
+        else:
+            return None
     def get_cnic_back(self, obj):
-        return f'{settings.BACKEND_URL}/media/{obj.cnic_back}'
+        if obj.cnic_back:
+            return f'{settings.BACKEND_URL}/media/{obj.cnic_back}'
+        else:
+            return None
 
     class Meta:
         model = StudentProfile
@@ -86,6 +98,33 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
     references = serializers.SerializerMethodField()
     videos = serializers.SerializerMethodField()
     days = serializers.SerializerMethodField()
+
+
+    profile_image = serializers.SerializerMethodField()
+    degree_image = serializers.SerializerMethodField()
+    cnic_image = serializers.SerializerMethodField()
+    cnic_back = serializers.SerializerMethodField()
+
+    def get_profile_image(self, obj):
+        if obj.profile_image:
+            return f'{settings.BACKEND_URL}/media/{obj.profile_image}'
+        else:
+            return None
+    def get_degree_image(self, obj):
+        if obj.degree_image:
+            return f'{settings.BACKEND_URL}/media/{obj.degree_image}'
+        else:
+            return None
+    def get_cnic_image(self, obj):
+        if obj.cnic_image:
+            return f'{settings.BACKEND_URL}/media/{obj.cnic_image}'
+        else:
+            return None
+    def get_cnic_back(self, obj):
+        if obj.cnic_back:
+            return f'{settings.BACKEND_URL}/media/{obj.cnic_back}'
+        else:
+            return None
 
     professional_details = serializers.SerializerMethodField()
 

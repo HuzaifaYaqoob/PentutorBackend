@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.conf import settings
+
+from Authentication.serializers import UserSerializer
 from .models import CartItem, Course, CourseCategory, CourseChapter, CourseDay, CourseMedia, CourseReview, ChapterVideo, CourseSession
 
 
@@ -19,6 +21,10 @@ class CourseCategorySerializer(serializers.ModelSerializer):
 class ChapterVideoSerializer(serializers.ModelSerializer):
     video = serializers.SerializerMethodField()
     vid_thumbnail = serializers.SerializerMethodField()
+    duration = serializers.SerializerMethodField()
+
+    def get_duration(self, obj):
+        return int(obj.duration)
     
     def get_video(self, obj):
         if obj.video:
@@ -28,7 +34,7 @@ class ChapterVideoSerializer(serializers.ModelSerializer):
         
     def get_vid_thumbnail(self, obj):
         if obj.vid_thumbnail:
-            return f"{settings.FRONT_END_URL}/{obj.vid_thumbnail}"
+            return f"{settings.BACKEND_URL}/media/{obj.vid_thumbnail}"
         else:
             return None
 
@@ -42,7 +48,7 @@ class CourseMediaSerializer(serializers.ModelSerializer):
     
     def get_image(self, obj):
         if obj.image:
-            return f"{settings.FRONT_END_URL}/{obj.image}"
+            return f"{settings.BACKEND_URL}/media/{obj.image}"
         else:
             return None
 
@@ -52,15 +58,24 @@ class CourseMediaSerializer(serializers.ModelSerializer):
         
 
 class CourseChapterSerializer(serializers.ModelSerializer):
-    video = serializers.SerializerMethodField()
+    videos = serializers.SerializerMethodField()
+    duration = serializers.SerializerMethodField()
+  
+
+    def get_duration(self, obj):
+        all_video_durations = list(ChapterVideo.objects.filter(chapter=obj).values_list('duration', flat=True))
+        all_video_durations = [int(x) for x in all_video_durations]
+        all_video_durations = sum(all_video_durations)
+
+        return all_video_durations
     
-    def get_video(self, obj):
+    def get_videos(self, obj):
         video = ChapterVideo.objects.filter(chapter=obj)
         serializer = ChapterVideoSerializer(video, many=True).data
         return serializer
     class Meta:
         model = CourseChapter
-        fields = ['title', 'course', 'slug', 'created_at', 'video']
+        fields = ['title', 'course', 'slug', 'created_at', 'videos', 'duration']
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -70,10 +85,23 @@ class CourseSerializer(serializers.ModelSerializer):
     students = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
     star_rating = serializers.SerializerMethodField()
-    chapter = serializers.SerializerMethodField()
+    chapters = serializers.SerializerMethodField()
+    user = UserSerializer()
+    category = serializers.SerializerMethodField()
+
+    total_videos = serializers.SerializerMethodField()
+
+    def get_total_videos(self, obj):
+        return ChapterVideo.objects.filter(course=obj).count()
+
+    def get_category(self, obj):
+        if obj.course_category:
+
+            return CourseCategorySerializer(obj.course_category).data
+        
+        return None
     
-    
-    def get_chapter(self, obj):
+    def get_chapters(self, obj):
         chapters = CourseChapter.objects.filter(course=obj)
         serializer = CourseChapterSerializer(chapters, many=True).data
         return serializer
@@ -85,10 +113,12 @@ class CourseSerializer(serializers.ModelSerializer):
     
     def get_duration(self, obj):
         all_videos = list(ChapterVideo.objects.filter(course=obj).values_list('duration', flat=True))
+        all_videos = [int(dur) for dur in all_videos]
+
         try:
-            return str(sum(all_videos))
-        except:
-            return 'N/A'
+            return sum(all_videos)
+        except Exception as err:
+            return f'{err}'
         
     def get_lectures(self, obj):
         all_videos = list(ChapterVideo.objects.filter(course=obj).values_list('duration', flat=True))
@@ -113,7 +143,7 @@ class CourseSerializer(serializers.ModelSerializer):
             'title',
             'short_title',
             'language',
-            'course_category',
+            'category',
             'level',
             'price',
             'slug',
@@ -124,7 +154,9 @@ class CourseSerializer(serializers.ModelSerializer):
             'review_count',
             'star_rating',
             'description',
-            'chapter'
+            'chapters',
+            'things_you_will_learn',
+            'total_videos'
         ]
         
 class CourseReviewSerializer(serializers.ModelSerializer):

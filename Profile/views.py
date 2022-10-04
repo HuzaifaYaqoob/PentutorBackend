@@ -181,3 +181,23 @@ def get_tutor(request):
         },
         status=status.HTTP_200_OK
     )
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_featured_tutors(request):
+    tutors = TeacherProfile.objects.filter(
+           is_approved=True,
+           is_active=True, 
+           is_deleted=False,
+           is_featured=True
+        )
+    serialized = TeacherProfileSerializer(tutors, many=True)
+    return Response(
+        {
+            'status': 'OK',
+            'message': 'Request Successful',
+            'tutors': serialized.data
+        },
+        status=status.HTTP_200_OK
+    )
+

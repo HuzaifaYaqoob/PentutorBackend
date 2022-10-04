@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 
 from django.utils.timezone import now
@@ -39,3 +40,20 @@ class City(models.Model):
 
     def __str__(self) :
         return self.name
+
+    
+class StudentQuery(models.Model):
+    id = models.UUIDField(auto_created=True, unique=True, primary_key=True, default=uuid.uuid4)
+
+    full_name = models.CharField(default='', max_length=1000)
+    email = models.CharField(default='', max_length=1000)
+    mobile_number =  models.CharField(default='', max_length=1000)
+    city =  models.CharField(default='', max_length=1000)
+    area =  models.CharField(default='', max_length=1000)
+
+    created_at = models.DateTimeField(auto_now=now)
+
+    def __str__(self) :
+        return str(self.id)
+
+    

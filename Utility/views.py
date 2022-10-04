@@ -5,12 +5,39 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
 
-from .models import Country, City
+from .models import Country, City, StudentQuery
 
 from .serializers import CountrySerializer, CitySerializer
 # Create your views here.
 
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_student_query(request):
+    full_name = request.data.get('full_name', 'NA')
+    email = request.data.get('email', 'NA')
+    mobile_number = request.data.get('mobile_number', 'NA')
+    city = request.data.get('city', 'NA')
+    area = request.data.get('area', 'NA')
+
+    StudentQuery.objects.create(
+        full_name = full_name,
+        email = email,
+        mobile_number = mobile_number,
+        city = city,
+        area = area
+    )
+
+    return Response({
+        'status' : True,
+        'response' : {
+            'message' : 'Created Successfully'
+        }},
+        status = status.HTTP_201_CREATED
+    )
 
 class GetCountries(APIView):
     permission_classes = [AllowAny]
