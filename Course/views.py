@@ -45,8 +45,13 @@ def create_course(request):
         return Response({'status' : False, 'data' : 'Invalid Data!'}, status=status.HTTP_400_BAD_REQUEST)
     
     request.data._mutable = True
-    request.data['user'] = user.id
-    serializer = CourseSerializer(data=request.data)
+    # request.data['user'] = user
+
+    couse_obj = Course.objects.create(
+        user = user
+    )
+
+    serializer = CourseSerializer(couse_obj, data=request.data, partial=True)
     if serializer.is_valid():
         course = serializer.save()
         course_media = CourseMedia.objects.create(course=course, image=image)
@@ -381,7 +386,15 @@ def add_to_cart(request):
                         status=status.HTTP_404_NOT_FOUND)
     if not quantity:
         quantity = 1 
-    cart = CartItem.objects.create(course=course, user=user, quantity=quantity, course_cart=True)
+    
+    try:
+        cart = CartItem.objects.get(course=course, user=user, course_cart=True)
+        return Response({'success': True, 'message': 'Already in cart'},
+                                status=status.HTTP_200_OK)
+    except Exception as err:
+        print(err)
+        cart = CartItem.objects.create(course=course, user=user, quantity=quantity, course_cart=True)
+
     serializer = CartItemSerializer(cart)
     return Response({'success': True, 'message': serializer.data},
                                 status=status.HTTP_201_CREATED)

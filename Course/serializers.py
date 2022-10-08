@@ -165,7 +165,23 @@ class CourseReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CartItem_CourseSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    def get_image(self, obj):
+        all_medias = CourseMedia.objects.filter(course=obj)
+        if len(all_medias) > 0:
+            img = all_medias[0].image
+            return f'{img}'
+        return None
+
+    class Meta:
+        model = Course
+        fields = ['title', 'price', 'slug', 'image']
+
 class CartItemSerializer(serializers.ModelSerializer):
+    course = CartItem_CourseSerializer()
+    user = UserSerializer()
     class Meta:
         model = CartItem
         fields = '__all__'
