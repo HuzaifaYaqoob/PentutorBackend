@@ -176,3 +176,14 @@ class CourseSession(models.Model):
     course_cart = models.BooleanField(default=False)
     def __str__(self):
         return str(self.title)
+
+
+class CoursePurchase(models.Model):
+    slug = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='bought_courses')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True, related_name='user_bought_courses')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.slug)

@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'Content.apps.ContentConfig',
     'VideoChat.apps.VideochatConfig',
     'Course.apps.CourseConfig',
+    'Blog.apps.BlogConfig',
 ]
 
 CORS_ALLOWED_ORIGINS = [
