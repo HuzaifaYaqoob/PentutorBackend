@@ -601,3 +601,22 @@ def delete_course_session(request):
     except Exception as e:
         return Response({"success": False, 'response': str(e)},
             status=status.HTTP_404_NOT_FOUND)
+        
+
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_user_courses(request):
+    user_id = request.GET.get('user', None)
+    course_id = request.GET.get('course', None)
+
+    if not user_id:
+        return Response({"success": False, 'response': 'Invalid Data!'},
+            status=status.HTTP_400_BAD_REQUEST)
+    courses = Course.objects.filter(user__id=user_id)
+    if course_id is not None:
+        courses = courses.exclude(slug=course_id)
+    serialized = CourseSerializer(courses, many=True)
+    return Response({"success": True, 'data':serialized.data },
+        status=status.HTTP_200_OK)

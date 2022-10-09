@@ -144,6 +144,7 @@ class CourseSerializer(serializers.ModelSerializer):
             'short_title',
             'language',
             'category',
+            'course_category',
             'level',
             'price',
             'slug',

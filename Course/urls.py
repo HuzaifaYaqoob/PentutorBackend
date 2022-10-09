@@ -32,5 +32,9 @@ urlpatterns = [
     path('get_course_session/' , views.get_course_session),
     path('delete_course_session/' , views.delete_course_session),
 
+
+
+    path('get_user_courses/' , views.get_user_courses),
+
     
 ]
