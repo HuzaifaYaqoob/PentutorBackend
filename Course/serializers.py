@@ -172,7 +172,7 @@ class CartItem_CourseSerializer(serializers.ModelSerializer):
         all_medias = CourseMedia.objects.filter(course=obj)
         if len(all_medias) > 0:
             img = all_medias[0].image
-            return f'{img}'
+            return f"{settings.BACKEND_URL}/media/{img}"
         return None
 
     class Meta:
