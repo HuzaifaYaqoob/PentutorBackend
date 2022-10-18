@@ -170,7 +170,6 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
 
     def get_days(self, obj):
         day, created = PreferredDays.objects.get_or_create(profile=obj)
-        print(' day ::: ' , day)
         serialized = PreferredDaysSerializer(day)
         return serialized.data
 

@@ -4,15 +4,15 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 
 from Authentication.serializers import UserSerializer
 from Utility.models import City, Country
 
-from .models import StudentProfile, TeacherProfile
+from .models import StudentProfile, TeacherProfile, UserExperience, UserQualification
 
-from .Serializers import StudentProfileSerializers, TeacherProfileSerializer
+from .Serializers import StudentProfileSerializers, TeacherProfileSerializer, UserExperienceSerializer, UserQualificationSerializer
 # Create your views here.
 
 
@@ -44,7 +44,7 @@ class ProfileView(APIView):
         return StudentProfileSerializers(StudentProfile.objects.get(user=request.user), data=request.data, partial=True)
 
     def saveTutorProfile(self, request):
-        return StudentProfileSerializers(TeacherProfile.objects.get(user=request.user), data=request.data, partial=True)
+        return TeacherProfileSerializer(TeacherProfile.objects.get(user=request.user), data=request.data, partial=True)
 
     def post(self, request):
         user_type_serializer = {
@@ -92,6 +92,7 @@ class ProfileView(APIView):
         if serialized_obj.is_valid() :
             serialized_obj.save()
 
+
             if get_user :
                 user_serialized = UserSerializer(
                 request.user, data=json.loads( request.data['user']), partial=True)
@@ -106,16 +107,25 @@ class ProfileView(APIView):
             try:
                 user_p = user_type_profile[request.user.user_profile.user_type].objects.get(
                     user=request.user)
+                user_p.profile_image = request.data['profile_image']
                 user_p.Country = Country.objects.get(id=request.data['Country'])
                 user_p.city = City.objects.get(id=request.data['city'])
                 user_p.save()
-            except:
+            except Exception as err:
+                print(err)
                 pass
+
+
+            user_type_serializer_output = {
+                'Student': lambda: StudentProfileSerializers(StudentProfile.objects.get(user=request.user)),
+                'Tutor':  lambda : TeacherProfileSerializer(TeacherProfile.objects.get(user=request.user))
+            }
+            output_serialized = user_type_serializer_output[request.user.user_profile.user_type]()
 
             return Response(
                 {
                     'message': 'Profile Successfuly Updated',
-                    'data':  serialized_obj.data
+                    'data':  output_serialized.data
                 },
                 status=status.HTTP_200_OK
             )
@@ -199,5 +209,83 @@ def get_featured_tutors(request):
             'tutors': serialized.data
         },
         status=status.HTTP_200_OK
+    )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_qualification(request):
+    degree = request.data.get('degree', None)
+    subject = request.data.get('subject', None)
+    year = request.data.get('year', None)
+    institute = request.data.get('institute', None)
+
+    if not all([degree, subject, year, institute]):
+        return Response(
+            {
+                'status': 'False',
+                'message': 'Invalid data',
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    obj = UserQualification.objects.create(
+        user = request.user,
+        degree = degree,
+        subject = subject,
+        passing_year = year,
+        institute = institute
+    )
+
+    data = UserQualificationSerializer(obj)
+
+     
+    return Response(
+        {
+            'status': 'OK',
+            'message': 'Request Successful',
+            'data': data.data
+        },
+        status=status.HTTP_201_CREATED
+    )
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_experience(request):
+
+    position = request.data.get('position', None)
+    from_date = request.data.get('from_date', None)
+    to_date = request.data.get('to_date', None)
+    institute = request.data.get('institute', None)
+    exprience_years = request.data.get('exprience_years', None)
+
+    if not all([position, from_date, to_date, institute, exprience_years]):
+        return Response(
+            {
+                'status': 'False',
+                'message': 'Invalid data',
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    obj = UserExperience.objects.create(
+        user = request.user,
+        position = position,
+        from_date = from_date,
+        to_date = to_date,
+        institute = institute,
+        exprience_years = exprience_years
+    )
+
+    data = UserExperienceSerializer(obj)
+
+     
+    return Response(
+        {
+            'status': 'OK',
+            'message': 'Request Successful',
+            'data': data.data
+        },
+        status=status.HTTP_201_CREATED
     )
 

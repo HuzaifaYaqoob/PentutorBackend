@@ -9,5 +9,7 @@ urlpatterns = [
     path('get_all_tutors/' , views.get_all_tutors , name='get_allTutors'),
     path('get_tutor/' , views.get_tutor),
     path('get_featured_tutors/' , views.get_featured_tutors),
+    path('add_qualification/' , views.add_qualification),
+    path('add_experience/' , views.add_experience),
     
 ]
