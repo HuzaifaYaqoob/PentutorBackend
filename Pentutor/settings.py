@@ -135,13 +135,21 @@ DATABASES = {
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # },
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME':  'pentutordb',
-        'USER' : 'admin',
-        'PASSWORD' : 'django1512' ,
-        'HOST' : 'localhost' ,
-        'PORT' : 5432
+        'ENGINE': env('DATABASE_ENGINE'),
+        'NAME':  env('DATABASE_NAME'),
+        'USER' : env('DATABASE_USER'),
+        'PASSWORD' : env('DATABASE_PASSWORD') ,
+        'HOST' : env('DATABASE_HOST') ,
+        'PORT' : env('DATABASE_PORT')
     },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME':  'pentutordb',
+    #     'USER' : 'admin',
+    #     'PASSWORD' : 'django1512' ,
+    #     'HOST' : '194.163.152.51' ,
+    #     'PORT' : 5432
+    # },
 }
 
 
