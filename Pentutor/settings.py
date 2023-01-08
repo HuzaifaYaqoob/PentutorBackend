@@ -75,7 +75,7 @@ INSTALLED_APPS = [
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:3001',
-    
+
     'http://pentutor.org',
     'https://pentutor.org',
 
@@ -84,8 +84,8 @@ CORS_ALLOWED_ORIGINS = [
 
     'http://192.168.115.107:3000',
 
-    'http://pentutor.redexpo.co.uk'
-    'https://pentutor.redexpo.co.uk'
+    'http://pentutor.redexpo.co.uk',
+    'https://pentutor.redexpo.co.uk',
 ]
 
 MIDDLEWARE = [
