@@ -1,7 +1,15 @@
 from django.contrib import admin
 
-from .models import VideoChat, VideoChatMedia, VideoChatSetting
+from .models import VideoChat, VideoChatMedia, VideoChatSetting, DemoCallRequest, DemoClassTimeSlot
 
+
+@admin.register(DemoClassTimeSlot)
+class VideoChatAdmin(admin.ModelAdmin):
+    list_display = ['id' , 'created_at']
+
+@admin.register(DemoCallRequest)
+class VideoChatAdmin(admin.ModelAdmin):
+    list_display = ['id' , 'created_at']
 
 @admin.register(VideoChat)
 class VideoChatAdmin(admin.ModelAdmin):

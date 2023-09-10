@@ -142,14 +142,6 @@ DATABASES = {
         'HOST' : env('DATABASE_HOST') ,
         'PORT' : env('DATABASE_PORT')
     },
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME':  'pentutordb',
-    #     'USER' : 'admin',
-    #     'PASSWORD' : 'django1512' ,
-    #     'HOST' : '194.163.152.51' ,
-    #     'PORT' : 5432
-    # },
 }
 
 

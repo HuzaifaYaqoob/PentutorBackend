@@ -181,7 +181,7 @@ def get_tutor(request):
             },
             status=status.HTTP_404_NOT_FOUND
         )
-    serialized = TeacherProfileSerializer(tutor)
+    serialized = TeacherProfileSerializer(tutor, context={'request' : request})
 
     return Response(
         {

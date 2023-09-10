@@ -65,3 +65,37 @@ class VideoChatSetting(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+
+
+class DemoCallRequest(models.Model):
+    DEMO_CLASS_STATUS = (
+        ('Requested', 'Requested'),
+        ('Accepted', 'Accepted'),
+    )
+    id = models.CharField(default=uuid4, primary_key=True, unique=True, editable=False, max_length=1000)
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='student_demo_classes')
+    tutor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tutor_demo_classes')
+
+    video_room = models.ForeignKey(VideoChat, on_delete=models.SET_NULL, null=True, blank=True, related_name='videoroom_demo_classes')
+
+    created_at = models.DateTimeField(null=True)
+
+class DemoClassTimeSlot(models.Model):
+    STATUS_CHOICES = (
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    )
+    id = models.CharField(default=uuid4, primary_key=True, unique=True, editable=False, max_length=1000)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requested_timeslots')
+
+    demo_class = models.ForeignKey(DemoCallRequest, on_delete=models.CASCADE, null=True, related_name='class_timeslots')
+    
+    selected_date = models.DateField()
+    selected_time = models.TimeField()
+
+    status = models.CharField(choices=STATUS_CHOICES, default='Pending', max_length=30)
+
+    created_at = models.DateTimeField(null=True)

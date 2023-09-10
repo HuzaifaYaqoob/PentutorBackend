@@ -4,10 +4,11 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
-from .models import VideoChat, VideoChatSetting
+from .models import VideoChat, VideoChatSetting, DemoCallRequest, DemoClassTimeSlot
+from Profile.models import Profile, TeacherProfile
 from .serializers import VideoChat_GetSerializer
 
 
@@ -91,3 +92,60 @@ def get_video_chat(request):
             },
             status=status.HTTP_200_OK
         )
+    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def requestTutorDemoClass(request):
+    tutor_id = request.POST.get('tutor_id', None)
+    selected_date = request.POST.get('selected_date', None)
+    selected_time = request.POST.get('selected_time', None)
+    if not tutor_id:
+        return Response(
+            {
+                'status' : False,
+                'response' : {
+                    'message' : 'Invalid Data'
+                }
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        tutor = TeacherProfile.objects.get(
+            slug = tutor_id
+        )
+    except Exception as err:
+        return Response(
+            {
+                'status' : False,
+                'response' : {
+                    'message' : 'Invalid Tutor ID',
+                    'error_message' : str(err)
+                }
+            },
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    demo_class = DemoCallRequest.objects.create(
+        user = request.user,
+        tutor = tutor.user,
+    )
+
+    DemoClassTimeSlot.objects.create(
+        user = request.user,
+        demo_class = demo_class,
+        selected_date = selected_date,
+        selected_time = selected_time,
+    )
+
+    return Response(
+        {
+            'status' : True,
+            'response' : {
+                'message' : 'Demo class requested',
+                'error_message' : None
+            }
+        },
+        status=status.HTTP_201_CREATED
+    )

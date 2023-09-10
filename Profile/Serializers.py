@@ -7,7 +7,7 @@ from .models import PreferredDays, StudentProfile, SubjectToTeach, TeacherProfil
 
 from Authentication.serializers import UserSerializer
 from Utility.serializers import CountrySerializer, CitySerializer, StateSerializer
-
+from VideoChat.models import DemoCallRequest
 
 class StudentProfileSerializers(serializers.ModelSerializer):
     user = UserSerializer()
@@ -93,6 +93,8 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
     state = StateSerializer()
     city = CitySerializer()
 
+
+    is_demo_requested = serializers.SerializerMethodField()
     qualifications = serializers.SerializerMethodField()
     experiences = serializers.SerializerMethodField()
     references = serializers.SerializerMethodField()
@@ -172,6 +174,22 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         day, created = PreferredDays.objects.get_or_create(profile=obj)
         serialized = PreferredDaysSerializer(day)
         return serialized.data
+    
+    def get_is_demo_requested(self, obj):
+        request = self.context.get('request', None)
+        if request is None:
+            return False
+        
+        user = request.user
+        try:
+            demo_class = DemoCallRequest.objects.get(
+                user = user,
+                tutor = obj.user
+            )
+        except Exception as err:
+            return False
+        
+        return True
 
 
     class Meta:
@@ -206,4 +224,5 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
             'time_end',
             'days',
             'professional_details',
-            ]
+            'is_demo_requested'
+        ]
