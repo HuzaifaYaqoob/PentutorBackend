@@ -26,7 +26,6 @@ imageio-ffmpeg==0.4.7
 incremental==21.3.0
 moviepy==1.0.3
 msgpack==1.0.4
-Pillow==9.2.0
 proglog==0.1.10
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
