@@ -88,6 +88,9 @@ CORS_ALLOWED_ORIGINS = [
 
     'http://pentutor.redexpo.co.uk',
     'https://pentutor.redexpo.co.uk',
+
+    'http://meet.redexpo.co.uk',
+    'https://meet.redexpo.co.uk',
 ]
 
 MIDDLEWARE = [
