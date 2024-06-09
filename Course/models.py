@@ -4,7 +4,6 @@ from django.utils.timezone import now
 import uuid
 import tempfile
 from django.contrib.auth.models import User
-from moviepy.editor import VideoFileClip
 import uuid
 from io import BytesIO
 from PIL import Image
@@ -105,6 +104,10 @@ class ChapterVideo(models.Model):
             with open(temp_path, 'wb+') as destination:
                  for chunk in self.video.chunks():
                            destination.write(chunk)
+
+
+            from moviepy.editor import VideoFileClip
+            
             clip = VideoFileClip(temp_path)
             temp_thumb = clip.get_frame(1)
             self.vid_thumbnail = generate_video_thumbnail(temp_thumb)
