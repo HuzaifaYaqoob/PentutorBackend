@@ -45,7 +45,6 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'jazzmin',
-    'daphne',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -59,7 +58,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
-    # 'channels',
+    'channels',
 
 
     # Custom Apps 
