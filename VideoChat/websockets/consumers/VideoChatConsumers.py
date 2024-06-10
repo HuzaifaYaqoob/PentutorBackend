@@ -257,6 +257,14 @@ class ActivatedVideoChat(WebsocketConsumer):
                     'message' : data
                 }
             )
+        elif r_type == 'USER_MUTED_HIS_SELF':
+            async_to_sync(self.channel_layer.group_send)(
+                self.activated_vc_channel_base,
+                {
+                    'type' : 'chat.message',
+                    'message' : data
+                }
+            )
         elif r_type == 'SCREEN_SHARE_NEW_CONNECTION':
             async_to_sync(self.channel_layer.group_send)(
                 self.activated_vc_channel_base,
