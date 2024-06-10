@@ -184,7 +184,9 @@ class ActivatedVideoChat(WebsocketConsumer):
                 try:
                     self.vidChat.paticipants.add(self.user)
                     self.vidChat.save()
-                except:
+                except Exception as err:
+                    print('///////////// ERRORR :::: /////////////')
+                    print(err)
                     pass
             self.activated_vc_channel_base = f'active-video-chat-{self.video_chat_id}'
 
@@ -237,7 +239,8 @@ class ActivatedVideoChat(WebsocketConsumer):
                 self.vidChat.paticipants.remove(get_user)
                 self.vidChat.save()
             except Exception as err:
-                print('EERRR :: ', err)
+                print('///////////// ERRORR :::: /////////////')
+                print(err)
                 pass
             async_to_sync(self.channel_layer.group_send)(
                 self.activated_vc_channel_base,
@@ -393,7 +396,8 @@ class ActivatedVideoChat(WebsocketConsumer):
             self.vidChat.paticipants.add(get_user)
             self.vidChat.save()
         except Exception as err:
-            print('ERROR ::::: ' , err)
+            print('///////////// ERRORR :::: /////////////')
+            print(err)
         async_to_sync(self.channel_layer.group_send)(
             self.activated_vc_channel_base,
             {
