@@ -290,7 +290,7 @@ class ActivatedVideoChat(WebsocketConsumer):
                 }
             )
         elif r_type == 'SETTINGS_CHANGE':
-            chat_id = data['message']['id']
+            chat_id = data['chat']['id']
             chat_settings, created = VideoChatSetting.objects.get_or_create(video_chat__id=chat_id)
             chat_settings.allow_chat = data['message']['allow_chat']
             chat_settings.allow_rename = data['message']['allow_rename']
