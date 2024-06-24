@@ -293,15 +293,17 @@ class ActivatedVideoChat(WebsocketConsumer):
             chat_id = data.get('chat', {}).get('id', None)
             if chat_id:
                 chat_settings, created = VideoChatSetting.objects.get_or_create(video_chat__id=chat_id)
-                chat_settings.allow_chat = data.get('message', {}).get('allow_chat', False)
-                chat_settings.allow_rename = data.get('message', {}).get('allow_rename', False)
-                chat_settings.lock_meeting = data.get('message', {}).get('lock_meeting', False)
-                chat_settings.share_screen = data.get('message', {}).get('share_screen', False)
-                chat_settings.start_video = data.get('message', {}).get('start_video', False)
-                chat_settings.unmute = data.get('message', {}).get('unmute', False)
-                chat_settings.waiting_room = data.get('message', {}).get('waiting_room', False)
-                chat_settings.save()
-            
+                # chat_settings.allow_chat = data.get('message', {}).get('allow_chat', False)
+                # chat_settings.allow_rename = data.get('message', {}).get('allow_rename', False)
+                # chat_settings.lock_meeting = data.get('message', {}).get('lock_meeting', False)
+                # chat_settings.share_screen = data.get('message', {}).get('share_screen', False)
+                # chat_settings.start_video = data.get('message', {}).get('start_video', False)
+                # chat_settings.unmute = data.get('message', {}).get('unmute', False)
+                # chat_settings.waiting_room = data.get('message', {}).get('waiting_room', False)
+                # chat_settings.save()
+
+                data['hello'] = 'updated'
+                data['hello_msg'] = data.get('message', {'no' : 'message'})
                 async_to_sync(self.channel_layer.group_send)(
                     self.activated_vc_channel_base,
                     {
