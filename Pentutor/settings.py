@@ -39,7 +39,7 @@ ALLOWED_HOSTS = [
     '*',
     ]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-CSRF_TRUSTED_ORIGINS=['https://*.redexpo.co.uj']
+CSRF_TRUSTED_ORIGINS=['https://*.redexpo.co.uk']
 
 
 # Application definition
