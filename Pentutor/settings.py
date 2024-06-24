@@ -38,7 +38,7 @@ ALLOWED_HOSTS = [
     '192.168.115.107',
     '*',
     ]
-
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Application definition
