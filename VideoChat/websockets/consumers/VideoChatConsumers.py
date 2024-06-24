@@ -290,24 +290,34 @@ class ActivatedVideoChat(WebsocketConsumer):
                 }
             )
         elif r_type == 'SETTINGS_CHANGE':
-            chat_id = data['chat']['id']
-            chat_settings, created = VideoChatSetting.objects.get_or_create(video_chat__id=chat_id)
-            chat_settings.allow_chat = data['message']['allow_chat']
-            chat_settings.allow_rename = data['message']['allow_rename']
-            chat_settings.lock_meeting = data['message']['lock_meeting']
-            chat_settings.share_screen = data['message']['share_screen']
-            chat_settings.start_video = data['message']['start_video']
-            chat_settings.unmute = data['message']['unmute']
-            chat_settings.waiting_room = data['message']['waiting_room']
-            chat_settings.save()
+            chat_id = data.get('chat', {}).get('id', None)
+            if chat_id:
+                chat_settings, created = VideoChatSetting.objects.get_or_create(video_chat__id=chat_id)
+                chat_settings.allow_chat = data.get('message', {}).get('allow_chat', False)
+                chat_settings.allow_rename = data.get('message', {}).get('allow_rename', False)
+                chat_settings.lock_meeting = data.get('message', {}).get('lock_meeting', False)
+                chat_settings.share_screen = data.get('message', {}).get('share_screen', False)
+                chat_settings.start_video = data.get('message', {}).get('start_video', False)
+                chat_settings.unmute = data.get('message', {}).get('unmute', False)
+                chat_settings.waiting_room = data.get('message', {}).get('waiting_room', False)
+                chat_settings.save()
             
-            async_to_sync(self.channel_layer.group_send)(
-                self.activated_vc_channel_base,
-                {
-                    'type' : 'chat.message',
-                    'message' : data
-                }
-            )
+                async_to_sync(self.channel_layer.group_send)(
+                    self.activated_vc_channel_base,
+                    {
+                        'type' : 'chat.message',
+                        'message' : data
+                    }
+                )
+            else:
+                data['type'] = 'ERROR_FOR_CHAT_ID'
+                async_to_sync(self.channel_layer.group_send)(
+                    self.activated_vc_channel_base,
+                    {
+                        'type' : 'chat.message',
+                        'message' : data
+                    }
+                )
         elif r_type == 'WHITE_BOARD_DATA':
             async_to_sync(self.channel_layer.group_send)(
                 self.activated_vc_channel_base,
