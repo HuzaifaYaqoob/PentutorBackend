@@ -293,14 +293,24 @@ class ActivatedVideoChat(WebsocketConsumer):
             chat_id = data.get('chat', {}).get('id', None)
             if chat_id:
                 chat_settings, created = VideoChatSetting.objects.get_or_create(video_chat__id=chat_id)
-                # chat_settings.allow_chat = data.get('message', {}).get('allow_chat', False)
-                # chat_settings.allow_rename = data.get('message', {}).get('allow_rename', False)
-                # chat_settings.lock_meeting = data.get('message', {}).get('lock_meeting', False)
-                # chat_settings.share_screen = data.get('message', {}).get('share_screen', False)
-                # chat_settings.start_video = data.get('message', {}).get('start_video', False)
-                # chat_settings.unmute = data.get('message', {}).get('unmute', False)
-                # chat_settings.waiting_room = data.get('message', {}).get('waiting_room', False)
-                # chat_settings.save()
+                input_settings = data.get('message', {})
+
+                if 'allow_chat' in input_settings:
+                    chat_settings.allow_chat = input_settings.get('allow_chat')
+                if 'allow_rename' in input_settings:
+                    chat_settings.allow_rename = input_settings.get('allow_rename')
+                if 'lock_meeting' in input_settings:
+                    chat_settings.lock_meeting = input_settings.get('lock_meeting')
+                if 'share_screen' in input_settings:
+                    chat_settings.share_screen = input_settings.get('share_screen')
+                if 'start_video' in input_settings:
+                    chat_settings.start_video = input_settings.get('start_video')
+                if 'unmute' in input_settings:
+                    chat_settings.unmute = input_settings.get('unmute')
+                if 'waiting_room' in input_settings:
+                    chat_settings.waiting_room = input_settings.get('waiting_room')
+                    
+                chat_settings.save()
 
                 data['hello'] = 'updated'
                 data['hello_msg'] = data.get('message', {'no' : 'message'})
