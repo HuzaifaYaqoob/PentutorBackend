@@ -88,7 +88,7 @@ def get_video_chat(request):
         )
     else:
         video_settings, created = VideoChatSetting.objects.get_or_create(video_chat=video_chat)
-        if video_settings.lock_meeting and video_chat.user != request.user:
+        if video_settings.lock_meeting and video_chat.host != request.user:
             return Response(
                 {
                     'status' : False,
