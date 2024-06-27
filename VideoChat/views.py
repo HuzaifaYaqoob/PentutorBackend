@@ -70,7 +70,12 @@ def get_video_chat(request):
         )
 
     try:
-        video_chat = VideoChat.objects.get(id=vChat_id, is_deleted=False, is_active=True)
+        video_chat = VideoChat.objects.get(
+            id=vChat_id, 
+            is_deleted=False, 
+            is_active=True,
+
+        )
     except Exception as err:
         return Response(
             {
@@ -82,6 +87,18 @@ def get_video_chat(request):
             status=status.HTTP_404_NOT_FOUND
         )
     else:
+        video_settings, created = VideoChatSetting.objects.get_or_create(video_chat=video_chat)
+        if video_settings.lock_meeting and video_settings.user != request.user:
+            return Response(
+                {
+                    'status' : False,
+                    'response' : {
+                        'message' : 'Video Chat is locked'
+                    }
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
         serialized_obj = VideoChat_GetSerializer(video_chat)
         return Response(
             {
