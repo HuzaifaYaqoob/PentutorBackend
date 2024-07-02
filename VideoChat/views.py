@@ -59,6 +59,7 @@ def create_video_chat(request):
                 'status' : False,
                 'response' : {
                     'message' : 'Invalid Tutor ID',
+                    'slug' : tutor_slug,
                     'error_message' : str(err)
                 }
             }, status=status.HTTP_400_BAD_REQUEST
