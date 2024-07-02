@@ -89,6 +89,23 @@ def create_video_chat(request):
     )
 
 @api_view(['GET'])
+def get_user_video_chats(request):
+    video_chats = VideoChat.objects.filter(
+        allowed_users = request.user
+    )
+    serialized = VideoChat_GetSerializer(video_chats, many=True)
+
+    return Response(
+        {
+            'status' : True,
+            'response' : {
+                'data' : serialized.data
+            }
+        }
+    )
+
+
+@api_view(['GET'])
 @permission_classes([AllowAny])
 def get_video_chat(request):
     vChat_id = request.GET.get('video_chat_id', None)
