@@ -39,7 +39,6 @@ class VideoChat_GetSerializer(serializers.ModelSerializer):
 
 class VideoChatClasses(serializers.ModelSerializer):
     host = UserSerializer(read_only=True)
-    allowed_users = UserSerializer(many=True, read_only=True)
 
     day_name  = serializers.SerializerMethodField()
     start_meeting  = serializers.SerializerMethodField()
@@ -51,7 +50,7 @@ class VideoChatClasses(serializers.ModelSerializer):
     def get_partner(self, obj):
         request = self.context('request', None)
         if request:
-            user = obj.allowed_users.exclude(id = request.user.id)
+            user = obj.allowed_users.all().exclude(id = request.user.id)
             if user:
                 try:
                     profile = Profile.objects.get(user=user)
@@ -75,4 +74,4 @@ class VideoChatClasses(serializers.ModelSerializer):
     
     class Meta:
         model = VideoChat
-        fields = ['id', 'host', 'allowed_users', 'day_name', 'start_time', 'end_time', 'partner', 'start_meeting']
+        fields = ['id', 'host', 'day_name', 'start_time', 'end_time', 'partner', 'start_meeting']
