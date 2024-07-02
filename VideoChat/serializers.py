@@ -54,8 +54,8 @@ class VideoChatClasses(serializers.ModelSerializer):
             if user:
                 try:
                     profile = Profile.objects.get(user=user)
-                except:
-                    return None
+                except Exception as err:
+                    return str(err)
                 else:
                     if profile.user_type == 'Student':
                         return f'ID-ST{profile.slug.split("-")[0]}'
