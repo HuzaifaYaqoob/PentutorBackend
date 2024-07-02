@@ -16,6 +16,10 @@ class VideoChat(models.Model):
     allowed_users = models.ManyToManyField(User, related_name='allowed_video_chats' )
     paticipants = models.ManyToManyField(User, related_name='participated_video_chats')
 
+    date = models.DateField(null=True, blank=True)
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=now)
     is_deleted = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
