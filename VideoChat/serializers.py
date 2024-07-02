@@ -46,4 +46,4 @@ class VideoChatClasses(serializers.ModelSerializer):
     
     class Meta:
         model = VideoChat
-        fields = ['id', 'host', 'allowed_users', 'paticipants', 'created_at', 'updated_at', 'day_name']
+        fields = ['id', 'host', 'allowed_users', 'day_name']
