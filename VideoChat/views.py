@@ -9,7 +9,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .models import VideoChat, VideoChatSetting, DemoCallRequest, DemoClassTimeSlot
 from Profile.models import Profile, TeacherProfile
-from Authentication.models import User
+from django.contrib.auth.models import User
 from .serializers import VideoChat_GetSerializer
 
 
