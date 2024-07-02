@@ -18,10 +18,10 @@ from datetime import datetime, timedelta
 @api_view(['POST'])
 def create_video_chat(request):
     name = request.GET.get('name' , None)
-    tutor_slug = request.POST.get('tutor_slug' , None)
-    date = request.POST.get('date' , None)
-    start_time = request.POST.get('start_time' , None)
-    end_time = request.POST.get('end_time' , None)
+    tutor_slug = request.data.get('tutor_slug' , None)
+    date = request.data.get('date' , None)
+    start_time = request.data.get('start_time' , None)
+    end_time = request.data.get('end_time' , None)
 
     if not request.user.is_authenticated:
         return Response(
