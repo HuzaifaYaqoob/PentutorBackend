@@ -16,7 +16,7 @@ from .serializers import VideoChat_GetSerializer
 @api_view(['POST'])
 def create_video_chat(request):
     name = request.GET.get('name' , None)
-    email = request.POST.get('email' , None)
+    tutor_slug = request.POST.get('tutor_slug' , None)
 
     if not request.user.is_authenticated:
         return Response(
@@ -35,11 +35,11 @@ def create_video_chat(request):
     vid_chat.allowed_users.add(request.user)
 
     try:
-        email_user = User.objects.get(email = email)
+        teacher = TeacherProfile.objects.get(slug = tutor_slug)
     except:
-        email_user = None
+        pass
     else:
-        vid_chat.allowed_users.add(email_user)
+        vid_chat.allowed_users.add(teacher.user)
     vid_chat.save()
 
     video_chat_setting = VideoChatSetting(
