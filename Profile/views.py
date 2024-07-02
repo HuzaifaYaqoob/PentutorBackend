@@ -143,7 +143,8 @@ class ProfileView(APIView):
 @permission_classes([AllowAny])
 def get_all_tutors(request):
     all_tutors = TeacherProfile.objects.filter(
-        is_approved=True, is_active=True, is_deleted=False)
+         is_active=True, is_deleted=False)
+        #  is_approved=True,
     serialized = TeacherProfileSerializer(all_tutors, many=True)
 
     return Response(
