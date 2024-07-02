@@ -9,12 +9,14 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .models import VideoChat, VideoChatSetting, DemoCallRequest, DemoClassTimeSlot
 from Profile.models import Profile, TeacherProfile
+from Authentication.models import User
 from .serializers import VideoChat_GetSerializer
 
 
 @api_view(['POST'])
 def create_video_chat(request):
     name = request.GET.get('name' , None)
+    email = request.POST.get('email' , None)
 
     if not request.user.is_authenticated:
         return Response(
@@ -31,6 +33,13 @@ def create_video_chat(request):
         host=request.user,
     )
     vid_chat.allowed_users.add(request.user)
+
+    try:
+        email_user = User.objects.get(email = email)
+    except:
+        email_user = None
+    else:
+        vid_chat.allowed_users.add(email_user)
     vid_chat.save()
 
     video_chat_setting = VideoChatSetting(
