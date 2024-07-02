@@ -48,7 +48,7 @@ class VideoChatClasses(serializers.ModelSerializer):
         return obj.date.strftime("%A")
 
     def get_partner(self, obj):
-        request = self.context('request', None)
+        request = self.context.get('request', None)
         if request:
             user = obj.allowed_users.all().exclude(id = request.user.id)
             if user:
