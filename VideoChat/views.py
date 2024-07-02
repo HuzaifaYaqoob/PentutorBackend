@@ -52,8 +52,17 @@ def create_video_chat(request):
 
     try:
         teacher = TeacherProfile.objects.get(slug = tutor_slug)
-    except:
-        pass
+    except Exception as err:
+        vid_chat.delete()
+        return Response(
+            {
+                'status' : False,
+                'response' : {
+                    'message' : 'Invalid Tutor ID',
+                    'error_message' : str(err)
+                }
+            }, status=status.HTTP_400_BAD_REQUEST
+        )
     else:
         vid_chat.allowed_users.add(teacher.user)
     vid_chat.save()
