@@ -14,7 +14,7 @@ class VideoChat(models.Model):
 
     host = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True , related_name='video_chats')
     allowed_users = models.ManyToManyField(User, related_name='allowed_video_chats' )
-    paticipants = models.ManyToManyField(User, related_name='participated_video_chats')
+    paticipants = models.ManyToManyField(User, related_name='participated_video_chats', blank=True)
 
     date = models.DateField(null=True, blank=True)
     start_time = models.TimeField(null=True, blank=True)
