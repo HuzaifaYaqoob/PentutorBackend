@@ -12,11 +12,16 @@ from Profile.models import Profile, TeacherProfile
 from django.contrib.auth.models import User
 from .serializers import VideoChat_GetSerializer
 
+from datetime import datetime, timedelta
+
 
 @api_view(['POST'])
 def create_video_chat(request):
     name = request.GET.get('name' , None)
     tutor_slug = request.POST.get('tutor_slug' , None)
+    date = request.POST.get('date' , None)
+    start_time = request.POST.get('start_time' , None)
+    end_time = request.POST.get('end_time' , None)
 
     if not request.user.is_authenticated:
         return Response(
@@ -28,9 +33,20 @@ def create_video_chat(request):
                 }
             }, status=status.HTTP_401_UNAUTHORIZED
         )
+    
+    if not date:
+        date = datetime.now().strftime("%Y-%m-%d")
+    
+    if not end_time:
+        end_time = datetime.now() + timedelta(minutes=30)
+        end_time = end_time.strftime("%H:%M")
+
     vid_chat = VideoChat.objects.create(
         name=name,
         host=request.user,
+        date = date,
+        start_time = start_time,
+        end_time = end_time
     )
     vid_chat.allowed_users.add(request.user)
 
