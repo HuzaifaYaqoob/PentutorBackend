@@ -50,17 +50,20 @@ class VideoChatClasses(serializers.ModelSerializer):
     def get_partner(self, obj):
         request = self.context.get('request', None)
         if request:
-            user = obj.allowed_users.exclude(id=request.user.id)
-            if user:
-                try:
-                    profile = Profile.objects.get(user=user)
-                except Exception as err:
-                    return str(err)
+            user = None
+            for u in obj.allowed_users:
+                if str(u.id) != str(request.user.id):
+                    user = u
+                    break
+            try:
+                profile = Profile.objects.get(user=user)
+            except Exception as err:
+                return str(err)
+            else:
+                if profile.user_type == 'Student':
+                    return f'ID-ST{profile.slug.split("-")[0]}'
                 else:
-                    if profile.user_type == 'Student':
-                        return f'ID-ST{profile.slug.split("-")[0]}'
-                    else:
-                        return f'ID-PT{profile.slug.split("-")[0]}'
+                    return f'ID-PT{profile.slug.split("-")[0]}'
         return None
 
 
