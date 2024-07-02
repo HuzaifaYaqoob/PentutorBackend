@@ -61,9 +61,9 @@ class VideoChatClasses(serializers.ModelSerializer):
                 return str(err)
             else:
                 if profile.user_type == 'Student':
-                    return f'ID-ST{profile.slug.split("-")[0]}'
+                    return f'ID-ST{str(profile.slug).split("-")[0]}'
                 else:
-                    return f'ID-PT{profile.slug.split("-")[0]}'
+                    return f'ID-PT{str(profile.slug).split("-")[0]}'
         return None
 
 
