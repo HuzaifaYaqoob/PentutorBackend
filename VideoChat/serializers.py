@@ -51,7 +51,7 @@ class VideoChatClasses(serializers.ModelSerializer):
         request = self.context.get('request', None)
         if request:
             user = None
-            for u in obj.allowed_users:
+            for u in obj.allowed_users.all():
                 if str(u.id) != str(request.user.id):
                     user = u
                     break
