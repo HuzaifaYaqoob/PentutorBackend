@@ -5,7 +5,11 @@ from .models import StudentProfile, TeacherProfile, UserExperience, UserMedia, U
 
 
 admin.site.register(StudentProfile)
-admin.site.register(TeacherProfile)
+@admin.register(TeacherProfile)
+class TeacherProfileAdmin(admin.ModelAdmin):
+    list_display = ['name' , 'slug']
+
+
 admin.site.register(UserQualification)
 admin.site.register(UserExperience)
 admin.site.register(UserReferences)
