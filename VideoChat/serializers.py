@@ -33,3 +33,24 @@ class VideoChat_GetSerializer(serializers.ModelSerializer):
         except Exception as error:
             print(error)
             return {}
+
+
+class VideoChatClasses(serializers.ModelSerializer):
+    host = UserSerializer(read_only=True)
+    allowed_users = UserSerializer(many=True, read_only=True)
+    paticipants = UserSerializer(many=True, read_only=True)
+    settings = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = VideoChat
+        fields = '__all__'
+
+    
+    def get_settings(self, obj):
+        try:
+            all_settings = VideoChatSetting.objects.get(video_chat=obj)
+            serialized_obj = SettingSerializer(all_settings)
+            return serialized_obj.data
+        except Exception as error:
+            print(error)
+            return {}

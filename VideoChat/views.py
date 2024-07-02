@@ -10,7 +10,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import VideoChat, VideoChatSetting, DemoCallRequest, DemoClassTimeSlot
 from Profile.models import Profile, TeacherProfile
 from django.contrib.auth.models import User
-from .serializers import VideoChat_GetSerializer
+from .serializers import VideoChat_GetSerializer, VideoChatClasses
 
 from datetime import datetime, timedelta
 
@@ -93,7 +93,7 @@ def get_user_video_chats(request):
     video_chats = VideoChat.objects.filter(
         allowed_users = request.user
     )
-    serialized = VideoChat_GetSerializer(video_chats, many=True)
+    serialized = VideoChatClasses(video_chats, many=True)
 
     return Response(
         {
