@@ -93,7 +93,7 @@ def get_user_video_chats(request):
     video_chats = VideoChat.objects.filter(
         allowed_users = request.user
     )
-    serialized = VideoChatClasses(video_chats, many=True)
+    serialized = VideoChatClasses(video_chats, many=True, context={'request' : request})
 
     return Response(
         {

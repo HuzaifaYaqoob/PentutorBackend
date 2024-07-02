@@ -3,6 +3,7 @@
 from rest_framework import serializers
 
 from Authentication.serializers import UserSerializer
+from Profile.models import Profile
 
 from .models import VideoChat, VideoChatMedia, VideoChatSetting
 from datetime import datetime
@@ -42,9 +43,26 @@ class VideoChatClasses(serializers.ModelSerializer):
 
     day_name  = serializers.SerializerMethodField()
     start_meeting  = serializers.SerializerMethodField()
+    partner  = serializers.SerializerMethodField()
 
     def get_day_name(self, obj):
         return obj.date.strftime("%A")
+
+    def get_partner(self, obj):
+        request = self.context('request', None)
+        if request:
+            user = obj.allowed_users.exclude(id = request.user.id)
+            if user:
+                try:
+                    profile = Profile.objects.get(user=user)
+                except:
+                    return None
+                else:
+                    if profile.user_type == 'Student':
+                        return f'ID-ST{profile.slug.split("-")[0]}'
+                    else:
+                        return f'ID-PT{profile.slug.split("-")[0]}'
+        return None
 
 
     def get_start_meeting(self, obj):
@@ -57,4 +75,4 @@ class VideoChatClasses(serializers.ModelSerializer):
     
     class Meta:
         model = VideoChat
-        fields = ['id', 'host', 'allowed_users', 'day_name', 'start_time', 'end_time', 'start_meeting']
+        fields = ['id', 'host', 'allowed_users', 'day_name', 'start_time', 'end_time', 'partner', 'start_meeting']
