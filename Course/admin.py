@@ -2,7 +2,12 @@ from django.contrib import admin
 from .models import CartItem, Course, CourseChapter, CourseDay, CourseMedia, CoursePurchase, CourseReview, ChapterVideo, CourseCategory, CourseSession
 
 
-admin.site.register(Course)
+@admin.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    list_editable = ['is_deleted']
+    list_filter = ['course_category', 'is_deleted']
+    list_display = ['title', 'user', 'course_category', 'created_at', 'is_deleted',]
+
 admin.site.register(CourseChapter)
 admin.site.register(CourseMedia)
 admin.site.register(CourseReview)

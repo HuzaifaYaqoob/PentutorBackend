@@ -39,7 +39,7 @@ class CourseCategory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return str(self.slug)
+        return str(self.title)
     
 
 class Course(models.Model):
@@ -59,10 +59,15 @@ class Course(models.Model):
 
     slug = models.UUIDField(primary_key=True, unique=True, editable=False, auto_created=True, default=uuid.uuid4)
     created_at = models.DateTimeField(auto_now=now)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.slug)
 
+    def save(self, *args, **kwargs):
+        if not self.short_title:
+            self.short_title = self.title
+        super(Course, self).save(*args, **kwargs)
 class CourseMedia(models.Model):
 
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_medias')

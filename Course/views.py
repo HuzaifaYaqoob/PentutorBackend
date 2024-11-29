@@ -14,7 +14,7 @@ from Profile.models import *
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_all_courses(request):
-    all_courses = Course.objects.all()
+    all_courses = Course.objects.filter(is_deleted=False)
     serialized = CourseSerializer(all_courses, many=True)
 
     return Response(
@@ -74,7 +74,8 @@ def delete_course(request):
     try:
         course = Course.objects.get(slug=slug)
         if user == course.user:
-            course.delete()
+            course.is_deleted = True
+            course.save()
             return Response({'status' : True, 'data' : 'Course Deleted Succesfully!'}, status=status.HTTP_200_OK)
         else:
             return Response({'status' : False, 'data' : 'You have no permission to deleted course!'}, status=status.HTTP_400_BAD_REQUEST)
@@ -214,7 +215,7 @@ def delete_chapter_video(request):
 @permission_classes([IsAuthenticated])
 def get_my_courses(request):
     user = request.user
-    courses = Course.objects.filter(user=user)
+    courses = Course.objects.filter(user=user, is_deleted=False)
     serializer = CourseSerializer(courses, many=True)
     return Response({'status' : True, 'data' : serializer.data}, status=status.HTTP_200_OK)
 
@@ -614,7 +615,7 @@ def get_user_courses(request):
     if not user_id:
         return Response({"success": False, 'response': 'Invalid Data!'},
             status=status.HTTP_400_BAD_REQUEST)
-    courses = Course.objects.filter(user__id=user_id)
+    courses = Course.objects.filter(user__id=user_id, is_deleted=False)
     if course_id is not None:
         courses = courses.exclude(slug=course_id)
     serialized = CourseSerializer(courses, many=True)
