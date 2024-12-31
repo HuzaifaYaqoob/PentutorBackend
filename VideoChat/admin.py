@@ -9,7 +9,14 @@ class VideoChatAdmin(admin.ModelAdmin):
 
 @admin.register(DemoCallRequest)
 class VideoChatAdmin(admin.ModelAdmin):
-    list_display = ['id' , 'created_at']
+    list_display = [
+        'id' , 
+        'user',
+        'tutor',
+        'status',
+        'video_room',
+        'created_at',
+    ]
 
 @admin.register(VideoChat)
 class VideoChatAdmin(admin.ModelAdmin):

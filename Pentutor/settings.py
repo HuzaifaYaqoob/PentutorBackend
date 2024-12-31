@@ -53,13 +53,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'djrichtextfield',
+    # 'djrichtextfield',
 
     # Extra Packages 
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
     'channels',
+    'ckeditor',
 
 
     # Custom Apps 
@@ -71,6 +72,7 @@ INSTALLED_APPS = [
     'VideoChat.apps.VideochatConfig',
     'Course.apps.CourseConfig',
     'Blog.apps.BlogConfig',
+    'Job.apps.JobConfig',
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -216,16 +218,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 FRONT_END_URL = env('FRONT_END_URL')
 BACKEND_URL = env('BACKEND_URL')
 
-DJRICHTEXTFIELD_CONFIG = {
-    'js': ['//cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js'],
-    'init_template': 'djrichtextfield/init/tinymce.js',
-    'settings': {
-        'menubar': False,
-        'plugins': 'link image',
-        'toolbar': 'bold italic | link image | removeformat',
-        'width': 700
-    }
-}
+# DJRICHTEXTFIELD_CONFIG = {
+#     'js': ['//cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js'],
+#     'init_template': 'djrichtextfield/init/tinymce.js',
+#     'settings': {
+#         'menubar': False,
+#         'plugins': 'link image',
+#         'toolbar': 'bold italic | link image | removeformat',
+#         'width': 700
+#     }
+# }
 
 try:
     from .local_settings import *

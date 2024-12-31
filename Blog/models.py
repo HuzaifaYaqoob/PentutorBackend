@@ -2,7 +2,8 @@ import uuid
 from django.db import models
 
 from django.contrib.auth.models import User
-from djrichtextfield.models import RichTextField
+# from djrichtextfield.models import RichTextField
+from ckeditor.fields import RichTextField
 
 # Create your models here.
 
@@ -17,4 +18,10 @@ class BlogPost(models.Model):
 
 
     def __str__(self):
+        """
+        Return a string representation of the BlogPost.
+
+        Returns:
+            str: The title of the BlogPost.
+        """
         return str(self.title)

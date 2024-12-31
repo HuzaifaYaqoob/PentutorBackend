@@ -89,9 +89,6 @@ class PreferredDaysSerializer(serializers.ModelSerializer):
 
 class TeacherProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    Country = CountrySerializer()
-    state = StateSerializer()
-    city = CitySerializer()
 
 
     is_demo_requested = serializers.SerializerMethodField()
@@ -191,6 +188,19 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         
         return True
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.Country:
+            data['Country'] = CountrySerializer(instance.Country).data
+        
+        if instance.state:
+            data['state'] = StateSerializer(instance.state).data
+        
+        if instance.city:
+            data['city'] = CitySerializer(instance.city).data
+        
+        data['id'] = str(instance.slug).split('-')[0].upper()
+        return data
 
     class Meta:
         model = TeacherProfile

@@ -10,4 +10,7 @@ urlpatterns = [
 
     # Demo Call 
     path('request-tutor-demo-class/', views.requestTutorDemoClass),
+    path('get_tutor_demo_classes_requests/', views.getTutorDemoCallRequest),
+    path('get_student_demo_classes_requests/', views.getStudentDemoCallRequest),
+    path('accept_reject_demo_class/<str:class_id>/', views.AcceptRejectClassRequest),
 ]

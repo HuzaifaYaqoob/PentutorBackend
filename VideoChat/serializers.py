@@ -4,8 +4,9 @@ from rest_framework import serializers
 
 from Authentication.serializers import UserSerializer
 from Profile.models import Profile
-
-from .models import VideoChat, VideoChatMedia, VideoChatSetting
+from django.contrib.auth.models import User
+from .models import VideoChat, VideoChatMedia, VideoChatSetting, DemoCallRequest, DemoClassTimeSlot
+from Profile.models import TeacherProfile
 from datetime import datetime
 
 
@@ -55,13 +56,16 @@ class VideoChatClasses(serializers.ModelSerializer):
                 if str(u.id) != str(request.user.id):
                     user = u
                     break
+            
+            if not user:
+                return None
             try:
                 profile = Profile.objects.get(user=user)
             except Exception as err:
-                return str(err)
+                return f'{user.first_name} {user.last_name}'
             else:
                 if profile.user_type == 'Student':
-                    return f'ID-PTS{str(profile.slug).split("-")[0]}'
+                    return f'ID-PTS{str(profile.slug).split("-")[0].upper()}'
                 else:
                     return f'ID-PT{str(profile.slug).split("-")[0]}'
         return None
@@ -77,4 +81,39 @@ class VideoChatClasses(serializers.ModelSerializer):
     
     class Meta:
         model = VideoChat
-        fields = ['id', 'host', 'day_name', 'start_time', 'end_time', 'partner', 'start_meeting']
+        fields = ['id', 'name', 'host', 'date', 'day_name', 'start_time', 'end_time', 'partner', 'start_meeting']
+
+class DemoClassUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'id']
+
+
+class DemoCallRequestSerializer(serializers.ModelSerializer):
+    user = DemoClassUserSerializer(read_only=True)
+
+    time = serializers.SerializerMethodField()
+
+    def get_time(self, obj):
+        call_time = DemoClassTimeSlot.objects.filter(demo_class=obj).order_by('-created_at').first()
+        return {
+            'date' : call_time.selected_date,
+            'time' : call_time.selected_time,
+            'id' : call_time.id
+        }
+
+    def to_representation(self, instance):
+        data = super(DemoCallRequestSerializer, self).to_representation(instance)
+        if instance.video_room:
+            data['video_room'] = instance.video_room.name
+        
+        try:
+            teacher_profile = TeacherProfile.objects.get(user=instance.tutor)
+        except:
+            pass
+        else:
+            data['tutor_id'] = f'ID-PT{teacher_profile.teacher_id}'
+        return data
+    class Meta:
+        model = DemoCallRequest
+        fields = '__all__'

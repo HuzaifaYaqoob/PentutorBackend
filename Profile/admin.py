@@ -7,7 +7,18 @@ from .models import StudentProfile, TeacherProfile, UserExperience, UserMedia, U
 admin.site.register(StudentProfile)
 @admin.register(TeacherProfile)
 class TeacherProfileAdmin(admin.ModelAdmin):
-    list_display = ['name' , 'slug']
+    list_editable = [
+        'is_approved',
+        'is_featured',
+    ]
+    list_display = [
+        'name', 
+        'slug', 
+        'is_approved',
+        'is_active',
+        'is_deleted',
+        'is_featured',
+    ]
 
 
 admin.site.register(UserQualification)

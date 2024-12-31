@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-
+from django.db.models import Q
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,7 +10,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import VideoChat, VideoChatSetting, DemoCallRequest, DemoClassTimeSlot
 from Profile.models import Profile, TeacherProfile
 from django.contrib.auth.models import User
-from .serializers import VideoChat_GetSerializer, VideoChatClasses
+from .serializers import VideoChat_GetSerializer, VideoChatClasses, DemoCallRequestSerializer
 
 from datetime import datetime, timedelta
 
@@ -218,3 +218,109 @@ def requestTutorDemoClass(request):
         },
         status=status.HTTP_201_CREATED
     )
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getTutorDemoCallRequest(request):
+    
+    class_requests = DemoCallRequest.objects.filter(
+        tutor = request.user,
+        # status = 'Requested'
+    ).order_by('-created_at')
+
+    serialized = DemoCallRequestSerializer(class_requests, many=True)
+
+    return Response(
+        {
+            'status' : True,
+            'response' : {
+                'data' : serialized.data
+            }
+        },
+        status=status.HTTP_200_OK
+    )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getStudentDemoCallRequest(request):
+    
+    class_requests = DemoCallRequest.objects.filter(
+        user = request.user,
+        # status = 'Requested'
+    ).order_by('-created_at')
+
+    serialized = DemoCallRequestSerializer(class_requests, many=True)
+
+    return Response(
+        {
+            'status' : True,
+            'response' : {
+                'data' : serialized.data
+            }
+        },
+        status=status.HTTP_200_OK
+    )
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def AcceptRejectClassRequest(request, class_id):
+    slot = request.GET.get('slot', None)
+
+    try:
+        class_request = DemoCallRequest.objects.get(
+            id = class_id,
+            tutor = request.user
+        )
+        slot = DemoClassTimeSlot.objects.get(
+            demo_class = class_request,
+            id = slot
+        )
+    except:
+        return Response(
+            {
+                'status' : False,
+                'response' : {
+                    'message' : 'Invalid Data'
+                }
+            },
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    req_status = request.GET.get('status', None)
+    
+    class_request.status = req_status
+    class_request.save()
+
+    if req_status == 'Accepted':
+        slot.req_status = 'Approved'
+        vid_chat = VideoChat.objects.create(
+            name=f'{class_request.user.first_name} requested demo class',
+            host=request.user,
+            date = slot.selected_date,
+            start_time = slot.selected_time,
+            # end_time = slot.selected_time + timedelta(minutes=30).time(),
+        )
+        vid_chat.allowed_users.add(class_request.user)
+        vid_chat.allowed_users.add(class_request.tutor)
+        vid_chat.save()
+
+        class_request.video_room = vid_chat
+        class_request.save()
+        video_chat_setting = VideoChatSetting.objects.create(user = request.user,video_chat = vid_chat,)
+
+    elif req_status == 'Rejected':
+        slot.req_status = 'Rejected'
+    slot.save()
+    
+    return Response(
+        {
+            'status' : True,
+            'response' : {
+                'message' : 'Demo Class Request Updated'
+            }
+        },
+        status=status.HTTP_200_OK
+    )
+

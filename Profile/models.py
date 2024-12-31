@@ -140,6 +140,9 @@ class TeacherProfile(Profile):
     time_start = models.CharField(max_length=50 , default='')
     time_end = models.CharField(max_length=50 , default='')
 
+    @property
+    def teacher_id(self):
+        return str(self.slug).split('-')[0].upper()
 
     def __str__(self) :
         return self.name

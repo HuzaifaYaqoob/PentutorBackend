@@ -125,7 +125,7 @@ class CourseSerializer(serializers.ModelSerializer):
         return len(all_videos)
 
     def get_students(self, obj):
-        return 'N/A'
+        return 0
 
     def get_review_count(self, obj):
         all_reviews = CourseReview.objects.filter(course=obj)
@@ -134,7 +134,7 @@ class CourseSerializer(serializers.ModelSerializer):
     def get_star_rating(self, obj):
         # all_reviews = CourseReview.objects.filter(course=obj)
         # return all_reviews.count()
-        return 'N/A'
+        return 5
 
     class Meta:
         model = Course

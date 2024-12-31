@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from uuid import uuid4
 
 from django.utils.timezone import now
+from datetime import datetime, timedelta
 
 
 
@@ -23,6 +24,11 @@ class VideoChat(models.Model):
     created_at = models.DateTimeField(auto_now_add=now)
     is_deleted = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        if not self.end_time:
+            self.end_time = datetime.strptime(self.start_time.strftime('%H:%M'), '%H:%M') + timedelta(minutes=30)
+        super(VideoChat, self).save(*args, **kwargs)
 
 
     def __str__(self):
@@ -76,6 +82,7 @@ class DemoCallRequest(models.Model):
     DEMO_CLASS_STATUS = (
         ('Requested', 'Requested'),
         ('Accepted', 'Accepted'),
+        ('Rejected', 'Rejected'),
     )
     id = models.CharField(default=uuid4, primary_key=True, unique=True, editable=False, max_length=1000)
 
@@ -83,8 +90,12 @@ class DemoCallRequest(models.Model):
     tutor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tutor_demo_classes')
 
     video_room = models.ForeignKey(VideoChat, on_delete=models.SET_NULL, null=True, blank=True, related_name='videoroom_demo_classes')
+    status = models.CharField(choices=DEMO_CLASS_STATUS, default='Requested', max_length=30)
 
-    created_at = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(null=True, auto_now_add=now)
+
+    def __str__(self):
+        return str(self.id)
 
 class DemoClassTimeSlot(models.Model):
     STATUS_CHOICES = (
@@ -103,3 +114,6 @@ class DemoClassTimeSlot(models.Model):
     status = models.CharField(choices=STATUS_CHOICES, default='Pending', max_length=30)
 
     created_at = models.DateTimeField(null=True)
+
+    def __str__(self):
+        return str(self.id)
