@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'Course.apps.CourseConfig',
     'Blog.apps.BlogConfig',
     'Job.apps.JobConfig',
+    'Order.apps.OrderConfig',
 ]
 
 CORS_ALLOWED_ORIGINS = [
